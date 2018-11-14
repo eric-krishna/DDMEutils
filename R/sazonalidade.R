@@ -1,5 +1,11 @@
+#' Inspeção de sazonalidade para séries temporais
+#' 
+#' @export
 inspeciona_sazonalidade <- function(x, ...) UseMethod("inspeciona_sazonalidade", x)
 
+#' @method inspeciona_outlier ts
+#' @export
+#' 
 inspeciona_sazonalidade.ts <- function(x, tendencia = TRUE) {
   
   e_sazonal <- forecast::tbats(x, 
@@ -13,6 +19,9 @@ inspeciona_sazonalidade.ts <- function(x, tendencia = TRUE) {
   
 }
 
+#' @method inspeciona_outlier data.table
+#' @export
+#' 
 inspeciona_sazonalidade.data.table <- function(x, tendencia = TRUE, sentido = 1L, paralelo = FALSE, 
                                                periodo = c('mes','semana','dia','ano','trimestre','quadrimestre','semestre','qualquer'),
                                                idcol = if(sentido == 1L) 1L else NULL, 
@@ -92,6 +101,12 @@ inspeciona_sazonalidade.data.table <- function(x, tendencia = TRUE, sentido = 1L
   
 }
 
+#' @method inspeciona_outlier tbl_df
+#' @export
+#' 
 inspeciona_sazonalidade.tbl_df <- function(x, ...) tibble::as_tibble(inspeciona_sazonalidade(data.table::setDT(x), ...))
 
+#' @method inspeciona_outlier data.frame
+#' @export
+#' 
 inspeciona_sazonalidade.data.frame <- function(x, ...) inspeciona_outlier(data.table::setDT(x), ...)

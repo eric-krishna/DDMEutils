@@ -4,6 +4,7 @@
 #' @param drop TRUE/FALSE para remover variável que possui mais do que proporção \code{corte} de NA
 #' @param corte Numérico entre 0 e 1. Com \code{drop = FALSE}, só trunca a descrição; com \code{drop = TRUE}, é a condição para remover variáveis.
 #'
+#' @export
 #' @return Tabela com descrição de NA ou data.frame original sem variáveis excluídas.
 
 na_prop <- function(dt, drop = FALSE, corte = if (drop) 0.5 else 0) {
