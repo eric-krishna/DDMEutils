@@ -32,47 +32,66 @@ inspeciona_sazonalidade.data.table <- function(x, tendencia = TRUE, sentido = 1L
   
   # options(future.globals.maxSize = +Inf) nao recomendado para x de alta dimensao com paralelo == TRUE e OS Windows
   
-  if(paralelo) { plan(multiprocess); progress <- TRUE;  options(future.globals.maxSize = +Inf) } else plan(sequential); progress <- FALSE  
+  if(paralelo) {
+    future::plan(future::multiprocess)
+    progress <- TRUE
+    options(future.globals.maxSize = +Inf) 
+  } else {
+    future::plan(future::sequential)
+    progress <- FALSE
+  }  
   
   switch(sentido,
          '1' = {
            
-           if(is.null(idcol) || idcol == 0) ids <- seq_len(nrow(x)) else { ids <- pull(x[, ..idcol]); x %<>% .[, -..idcol] %>% as.matrix() }
+           if (is.null(idcol) | idcol == 0) {
+             ids <- seq_len(nrow(x))
+           } else {
+             ids <- dplyr::pull(x[, ..idcol])
+             x %<>% .[, -..idcol] %>% as.matrix() 
+           }
            
-           x <- future_map_dfr(seq_len(nrow(x)),
-                               ~ {
-                                 data.frame(
-                                   ID = ids[.x],
-                                   SAZONALIDADE = x[.x, ] %>% ts(frequency = periodo) %>% inspeciona_sazonalidade.ts(tendencia = tendencia),
-                                   stringsAsFactors = FALSE
-                                 )
-                               },
-                               .progress = progress) %>% setDT()
+           x <- furrr::future_map_dfr(seq_len(nrow(x)),
+                                      ~ {
+                                        data.frame(
+                                          ID = ids[.x],
+                                          SAZONALIDADE = x[.x, ] %>% ts(frequency = periodo) %>% inspeciona_sazonalidade.ts(tendencia = tendencia),
+                                          stringsAsFactors = FALSE
+                                        )
+                                      },
+                                      .progress = progress) %>% 
+             data.table::setDT()
            
          },
          
          '2' = {
            
-           if(is.null(dtcol) || dtcol == 0) { ids <- seq_len(nrow(x)) } else { x %<>% .[, -..dtcol] ; ids <- copy(names(x))}
+           if (is.null(dtcol) | dtcol == 0) {
+             ids <- seq_len(nrow(x)) 
+           } else {
+             x %<>% .[, -..dtcol]
+             ids <- data.table::copy(names(x))
+           }
            
-           x <- future_map_dfr(seq_len(ncol(x)), 
-                               ~ {
-                                 data.frame(
-                                   ID = ids[.x],
-                                   SAZONALIDADE = x[[.x]] %>% ts(frequency = periodo) %>% inspeciona_sazonalidade.ts(tendencia = tendencia),
-                                   stringsAsFactors = FALSE
-                                 )
-                               }, 
-                               .progress = progress) %>% setDT()
+           x <- furrr::future_map_dfr(seq_len(ncol(x)), 
+                                      ~ {
+                                        data.frame(
+                                          ID = ids[.x],
+                                          SAZONALIDADE = x[[.x]] %>% ts(frequency = periodo) %>% inspeciona_sazonalidade.ts(tendencia = tendencia),
+                                          stringsAsFactors = FALSE
+                                        )
+                                      }, 
+                                      .progress = progress) %>% 
+             data.table::setDT()
            
          })
   
-  plan(sequential)
+  future::plan(future::sequential)
   
   x
   
 }
 
-inspeciona_sazonalidade.tbl_df <- function(x, ...) as_tibble(inspeciona_sazonalidade(data.table::setDT(x), ...))
+inspeciona_sazonalidade.tbl_df <- function(x, ...) tibble::as_tibble(inspeciona_sazonalidade(data.table::setDT(x), ...))
 
 inspeciona_sazonalidade.data.frame <- function(x, ...) inspeciona_outlier(data.table::setDT(x), ...)

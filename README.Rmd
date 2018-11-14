@@ -8,10 +8,10 @@ knitr::opts_chunk$set(echo = TRUE,
                       error = FALSE,
                       message = FALSE,
                       fig.path = "README_figs/README-")
-source("outliers.R")
-source("nas.R")
+library('devtools')
 library("ggplot2")
 library("knitr")
+devtools::load_all()
 ```
  
 # DDME - Repositório de funções do R úteis para o dia a dia
@@ -101,7 +101,7 @@ inspeciona_outlier(d2, sentido = 2, out_format = "long") %>%
 ```
 
 
-## 2) prop_na()
+## 2) na_prop()
 
 Função para checar proporção de valores faltantes num `data.table` com variáveis nas colunas.
 
@@ -110,8 +110,6 @@ Função para checar proporção de valores faltantes num `data.table` com vari�
     + Retirar colunas com proporção de NAs maior do que `corte` se `drop = TRUE`
 
 ```{r, echo = FALSE}
-rm(list = ls())
-source("nas.R") 
 dados <- datasets::attenu
 ```
 
@@ -122,16 +120,16 @@ dados <- datasets::attenu %>% as.data.table()
 head(dados)
 
 # Geral
-dados %>% prop_na()
+dados %>% na_prop()
 
 # Restringindo proporcao
-dados %>% prop_na(corte = 0.2)
+dados %>% na_prop(corte = 0.2)
 ```
 
 Mudando base por referência:
 
 ```{r}
-dados %>% prop_na(corte = 0.05, drop = TRUE)
+dados %>% na_prop(corte = 0.05, drop = TRUE)
 
 dados
 ```
