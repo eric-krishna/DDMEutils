@@ -6,7 +6,7 @@ inspeciona_outlier.integer <- function(x, ...) inspeciona_outlier.ts(as.ts(x), .
 
 inspeciona_outlier.tbl_df <- function(x, ...) as_tibble(inspeciona_outlier(data.table::setDT(x), ...))
 
-inspeciona_outlier.data.frame <- function(x, ...) inspeciona_outlier(setDT(x), ...)
+inspeciona_outlier.data.frame <- function(x, ...) inspeciona_outlier(data.table::setDT(x), ...)
 
 inspeciona_outlier.ts <- function(x, janela = 3, anom_method = c('gesd','iqr')) {
   
@@ -14,18 +14,18 @@ inspeciona_outlier.ts <- function(x, janela = 3, anom_method = c('gesd','iqr')) 
   
   anom_method <- match.arg(anom_method)
   
-  bs <- tibble(DATA = zoo::as.Date.ts(x), SERIE = x)
+  bs <- tibble::tibble(DATA = zoo::as.Date.ts(x), SERIE = x)
   
   y <- suppressMessages(
     bs %>% 
-      time_decompose(SERIE, method = 'stl', trend = 'auto',frequency = 'auto') %>%
-      anomalize(remainder, method = anom_method, alpha = 0.05) %>%
-      time_recompose() %>% 
-      filter(anomaly == 'Yes') %>% 
-      pull(DATA)
+      anomalize::time_decompose(SERIE, method = 'stl', trend = 'auto',frequency = 'auto') %>%
+      anomalize::anomalize(remainder, method = anom_method, alpha = 0.05) %>%
+      anomalize::time_recompose() %>% 
+      dplyr::filter(anomaly == 'Yes') %>% 
+      dplyr::pull(DATA)
   )
   
-  bs %>% setDT()
+  bs %>% data.table::setDT()
   
   novas <- c('SERIE_IMPUTADA', 'FLAG_OUTLIER')
   
@@ -78,33 +78,49 @@ inspeciona_outlier.data.table <- function(x, sentido = 1L, janela = 3, paralelo 
   
   # options(future.globals.maxSize = +Inf) nao recomendado para x de alta dimensao com paralelo == TRUE e OS Windows
   
-  if(paralelo) { plan(multiprocess); progress <- TRUE;  options(future.globals.maxSize = +Inf) } else plan(sequential); progress <- FALSE  
+  if (paralelo) { 
+    future::plan(future::multiprocess)
+    progress <- TRUE
+    options(future.globals.maxSize = +Inf)
+   # on.exit(future::plan(future::sequential))
+  } else {
+    plan(sequential)
+    progress <- FALSE
+  }  
     
   switch(sentido,
          '1' = {
 
-           if(is.null(idcol) | idcol == 0) ids <- seq_len(nrow(x)) else { ids <- pull(x[, ..idcol]); x %<>% .[, -..idcol] }
-           data <- copy(names(x))
+           if (is.null(idcol) | idcol == 0) {
+             ids <- seq_len(nrow(x))
+           } else {
+             ids <- dplyr::pull(x[, ..idcol])
+             x %<>% .[, -..idcol] 
+           }
            
-           x <- future_map(seq_len(nrow(x)),
-                           ~ {
-                             as.ts(as.numeric(x[.x])) %>% 
-                               inspeciona_outlier.ts(janela = janela, anom_method = anom_method) %>%
-                               {.[, `:=`(DATA = NULL, PERIODO = data, ID = ids[.x])][]}
-                             },
-                           .progress = progress) %>%
-             rbindlist()
+           data <- data.table::copy(names(x))
            
-           plan(sequential)
+           x <- furrr::future_map(seq_len(nrow(x)),
+                                  ~ {
+                                   as.ts(as.numeric(x[.x])) %>% 
+                                     inspeciona_outlier.ts(janela = janela, anom_method = anom_method) %>%
+                                     {.[, `:=`(DATA = NULL, PERIODO = data, ID = ids[.x])][]}
+                                   },
+                                  .progress = progress) %>%
+             data.table::rbindlist()
            
-           if(out_format == 'long') {
+           future::plan(future::sequential)
+           
+           if (out_format == 'long') {
              x %<>% 
                melt(measure = grep('SERIE',names(x)), variable.name = 'SERIE', value.name = 'VALOR') %>% 
                {.[str_detect(SERIE, '_IMPUTADA$'), `:=`(SERIE =  str_remove(SERIE, '_IMPUTADA$'), IMPUTADA = 1L)]} %>% 
                {.[is.na(IMPUTADA), IMPUTADA := 0L]} %>% 
                {.[, SERIE := NULL]} %>% 
-               setcolorder(c('ID', 'PERIODO', 'FLAG_OUTLIER', 'IMPUTADA','VALOR')) %>% {.[]}
-           } else x %<>% setcolorder(c('ID','PERIODO')) %>% {.[]}
+               data.table::setcolorder(c('ID', 'PERIODO', 'FLAG_OUTLIER', 'IMPUTADA','VALOR')) %>% {.[]}
+           } else {
+             x %<>% data.table::setcolorder(c('ID','PERIODO')) %>% {.[]}
+           }
            
          },
          
@@ -112,35 +128,42 @@ inspeciona_outlier.data.table <- function(x, sentido = 1L, janela = 3, paralelo 
            
            nomes <- names(x)
            acr <- 1L
-           if(is.null(dtcol) | dtcol == 0) { data <- data.table(seq_len(nrow(x))) ; acr <- 0L; dtcol = 1L} else { data <- x[, ..dtcol]; x %<>% .[, -..dtcol] }
+           if (is.null(dtcol) | dtcol == 0) {
+             data <- data.table::data.table(seq_len(nrow(x)))
+             acr <- 0L
+             dtcol <- 1L
+           } else {
+             data <- x[, ..dtcol]
+             x %<>% .[, -..dtcol] 
+           }
            
            x %<>% 
-             future_map2(seq_along(.), 
-                             ~ {
-                               as.ts(.x) %>% 
-                                 inspeciona_outlier.ts(janela = janela, anom_method = anom_method) %>% 
-                                 setnames(old = c('SERIE', 'SERIE_IMPUTADA', 'FLAG_OUTLIER'),
-                                          new = paste0(nomes[.y + acr], c('', '_IMPUTADA', '_FLAG_OUTLIER'))) %>% 
-                                          {.[, -1L]}
-                             },
-                             .progress = progress)
+             furrr::future_map2(seq_along(.), 
+                                ~ {
+                                  as.ts(.x) %>% 
+                                    inspeciona_outlier.ts(janela = janela, anom_method = anom_method) %>% 
+                                    data.table::setnames(old = c('SERIE', 'SERIE_IMPUTADA', 'FLAG_OUTLIER'),
+                                                         new = paste0(nomes[.y + acr], c('', '_IMPUTADA', '_FLAG_OUTLIER'))) %>% 
+                                    {.[, -1L]}
+                                },
+                                .progress = progress)
           
-           if(out_format == 'wide') {
+           if (out_format == 'wide') {
              
-             x %<>% bind_cols(data, .) %>% setnames(names(.)[1L], 'DATA') %>% {.[]} # mais rapido do que Reduce(merge, x)
+             x %<>% dplyr::bind_cols(data, .) %>% data.table::setnames(names(.)[1L], 'DATA') %>% {.[]} # mais rapido do que Reduce(merge, x)
              
            } else {
              
              suppressWarnings(
                x %<>% 
-                 future_map_dfr( 
+                 furrr::future_map_dfr(
                    ~ {
                      melt(.x, measure = 1:2, value.name = 'VALOR', variable.name = 'SERIE') %>%
                      {.[, DATA := data]} %>% 
                      {.[str_detect(SERIE, '_IMPUTADA$'), `:=`(SERIE =  str_remove(SERIE, '_IMPUTADA$'), IMPUTADA = 1L)]} %>% 
                      {.[is.na(IMPUTADA), IMPUTADA := 0L]} %>% 
-                       setnames(grep('_FLAG_OUTLIER$', names(.), value = T), 'FLAG_OUTLIER') %>% 
-                       setcolorder(c('DATA','SERIE','FLAG_OUTLIER','IMPUTADA','VALOR')) %>% {.[]}
+                       data.table::setnames(grep('_FLAG_OUTLIER$', names(.), value = T), 'FLAG_OUTLIER') %>% 
+                       data.table::setcolorder(c('DATA','SERIE','FLAG_OUTLIER','IMPUTADA','VALOR')) %>% {.[]}
                    },
                    .progress = progress
                  )
@@ -150,7 +173,7 @@ inspeciona_outlier.data.table <- function(x, sentido = 1L, janela = 3, paralelo 
            
          })
   
-  plan(sequential)
+  future::plan(future::sequential)
   
   x
   
