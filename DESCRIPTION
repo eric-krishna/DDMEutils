@@ -24,5 +24,6 @@ Imports:
     purrr,
     future,
     furrr,
+    stringr,
     zoo,
     forecast
