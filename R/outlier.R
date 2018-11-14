@@ -3,19 +3,24 @@
 #' @export
 inspeciona_outlier <- function(x, ...) UseMethod('inspeciona_outlier', x)
 
-
+#' @method numeric
 #' @export
+#' 
 inspeciona_outlier.numeric <- function(x, ...) inspeciona_outlier.ts(as.ts(x), ...)
 
+#' @method integer
 #' @export
 inspeciona_outlier.integer <- function(x, ...) inspeciona_outlier.ts(as.ts(x), ...)
 
+#' @method tbl_df
 #' @export
 inspeciona_outlier.tbl_df <- function(x, ...) as_tibble(inspeciona_outlier(data.table::setDT(x), ...))
 
+#' @method data.frame
 #' @export
 inspeciona_outlier.data.frame <- function(x, ...) inspeciona_outlier(data.table::setDT(x), ...)
 
+#' @method ts
 #' @export
 inspeciona_outlier.ts <- function(x, janela = 3, anom_method = c('gesd','iqr')) {
   
@@ -72,6 +77,7 @@ inspeciona_outlier.ts <- function(x, janela = 3, anom_method = c('gesd','iqr')) 
   
 }
 
+#' @method data.table
 #' @export
 inspeciona_outlier.data.table <- function(x, sentido = 1L, janela = 3, paralelo = FALSE, out_format = c('wide','long'), anom_method = c('gesd','iqr'),
                                           idcol = if(sentido == 1L) 1L else NULL,  dtcol = if(sentido == 2L) 1L else NULL) {
