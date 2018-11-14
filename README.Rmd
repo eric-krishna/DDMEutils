@@ -1,0 +1,140 @@
+---
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      warning = FALSE,
+                      error = FALSE,
+                      message = FALSE,
+                      fig.path = "README_figs/README-")
+source("outliers.R")
+source("nas.R")
+library("ggplot2")
+library("knitr")
+```
+ 
+# DDME - Repositório de funções do R úteis para o dia a dia
+
+## 1) inspeciona_outlier()
+
+Função base criada por Gabriel Motta, útil para detecção de outliers em séries temporais com base no pacote `anomalize`. As opções de uso são:
+
+* Atômicos: 
+    + vetor com inteiros ou numéricos
+    + objeto ts
+* Tabelas:
+    + data.table
+    + tbl_df  
+    + data.frame
+
+### Exemplo série unidimensional
+
+Vetor sem data guardado em `x`:
+
+```{r, echo=FALSE}
+x <- rpois(100, 10); x[c(10,30)] <- c(50,65) ; x[c(50)] <- -10
+qplot(seq_along(x), x, geom = "line", xlab = "Índice", ylab = "Valores")
+```
+
+O resultado da chamada é um objeto `data.table`. Note que a coluna `DATA` é criada arbitrariamente e nem faz sentido, já que o objeto inicial não possui referências temporais. 
+
+```{r}
+x_alterado <- inspeciona_outlier(x)
+x_alterado[49:55]
+```
+```{r}
+x_alterado %>% 
+  melt(id = "DATA", measure = patterns("SERIE")) %>% 
+  mutate(variable = factor(variable, labels = c("Original","Imputada"))) %>% {.[]} %>% 
+  ggplot(aes(DATA,value,color = variable)) +
+  geom_line() +
+  labs(x = "Índice", y = "Valores", color = "") + 
+  theme(legend.position = "bottom")
+```
+
+
+
+### Múltiplas séries
+
+O sentido das séries na tabela que estiver trabalhando pode ser por linhas ou colunas, e essencialmente este é o único cuidado que se deve ter para a chamada da função. O argumento `sentido` deve ser definido como __1 para linhas__ ou __2 para colunas__.
+
+#### Séries nas linhas
+
+Exemplo para tabelas com séries nas linhas:
+
+```{r, echo = FALSE}
+d1 = cbind(x,x + rnorm(100)) %>% t() %>% as.data.table() %>% .[, ID := 1:2] %>% setcolorder('ID') %>% {.[]}
+d2 = data.table(DATA = seq(as.Date('2018-01-01'), by = 1, length.out = 100), SERIE1 = x, SERIE2 = round(rcauchy(100),4))
+```
+
+
+```{r}
+d1[,1:10]
+
+# Formato de saída "wide"
+inspeciona_outlier(d1, sentido = 1) %>% 
+  sample_n(10) %>% 
+  {.[order(ID,PERIODO)]}
+
+# Formato de saída "long"
+inspeciona_outlier(d1, sentido = 1, out_format = "long") %>% 
+  sample_n(10) %>% 
+  {.[order(ID,PERIODO)]}
+```
+
+
+#### Séries nas colunas
+
+Exemplo para tableas com séries nas colunas:
+
+```{r}
+d2[1:5]
+
+# Formato de saída "wide"
+inspeciona_outlier(d2, sentido = 2) %>% head()
+
+# Formato de saída "long"
+inspeciona_outlier(d2, sentido = 2, out_format = "long") %>% 
+  sample_n(10) %>% 
+  {.[order(SERIE,DATA)]}
+```
+
+
+## 2) prop_na()
+
+Função para checar proporção de valores faltantes num `data.table` com variáveis nas colunas.
+
+* Outras possibilidades:
+    + Apresentar colunas com mais do que `corte` na proporção de NAs
+    + Retirar colunas com proporção de NAs maior do que `corte` se `drop = TRUE`
+
+```{r, echo = FALSE}
+rm(list = ls())
+source("nas.R") 
+dados <- datasets::attenu
+```
+
+### Exemplo para banco de dados datasets::attenu
+
+```{r}
+dados <- datasets::attenu %>% as.data.table()
+head(dados)
+
+# Geral
+dados %>% prop_na()
+
+# Restringindo proporcao
+dados %>% prop_na(corte = 0.2)
+```
+
+Mudando base por referência:
+
+```{r}
+dados %>% prop_na(corte = 0.05, drop = TRUE)
+
+dados
+```
+
+
+
