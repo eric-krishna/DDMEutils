@@ -6,8 +6,15 @@
 #'
 #' @export
 #' @return Tabela com descrição de NA ou data.frame original sem variáveis excluídas.
+#' 
+na_prop <- function(dt, drop = FALSE, corte = if(drop) 0.5 else 0) UseMethod("na_prop", dt)
 
-na_prop <- function(dt, drop = FALSE, corte = if (drop) 0.5 else 0) {
+
+#' @method na_prop data.table
+#' 
+#' @export
+#' 
+na_prop.data.table <- function(dt, ...) {
 
   if (!data.table::between(corte, 0, 1)) stop("'corte' deve ser uma proporcao.")
 
@@ -31,3 +38,15 @@ na_prop <- function(dt, drop = FALSE, corte = if (drop) 0.5 else 0) {
   else tabela[order(-PROPORCAO_NA)]
 
 }
+
+#' @method na_prop data.frame
+#' 
+#' @export
+#' 
+na_prop.data.frame <- function(dt, ...) na_prop.data.table(data.table::setDT(dt), ...)
+
+#' @method na_prop tbl_df
+#' 
+#' @export
+#' 
+na_prop.tbl_df <- function(dt, ...) tibble::as_tibble(na_prop.data.table(data.table::setDT(dt), ...))
