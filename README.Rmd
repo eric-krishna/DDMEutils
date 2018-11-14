@@ -18,7 +18,7 @@ library("knitr")
  
 # DDME - Repositório de funções do R úteis para o dia a dia
 
-## 1) inspeciona_outlier()
+## 1 inspeciona_outlier()
 
 Função base criada por Gabriel Motta, útil para detecção de outliers em séries temporais com base no pacote `anomalize`. As opções de uso são:
 
@@ -104,7 +104,7 @@ inspeciona_outlier(d2, sentido = 2, out_format = "long") %>%
 ```
 
 
-## 2) na_prop()
+## 2 na_prop()
 
 Função para checar proporção de valores faltantes num `data.table` com variáveis nas colunas.
 
