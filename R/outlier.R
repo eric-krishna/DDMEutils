@@ -132,7 +132,7 @@ inspeciona_outlier.data.table <- function(x, sentido = 1L, janela = 3, paralelo 
            if (out_format == 'long') {
              x %<>% 
                melt(measure = grep('SERIE',names(x)), variable.name = 'SERIE', value.name = 'VALOR') %>% 
-               {.[str_detect(SERIE, '_IMPUTADA$'), `:=`(SERIE =  str_remove(SERIE, '_IMPUTADA$'), IMPUTADA = 1L)]} %>% 
+               {.[stringr::str_detect(SERIE, '_IMPUTADA$'), `:=`(SERIE =  stringr::str_remove(SERIE, '_IMPUTADA$'), IMPUTADA = 1L)]} %>% 
                {.[is.na(IMPUTADA), IMPUTADA := 0L]} %>% 
                {.[, SERIE := NULL]} %>% 
                data.table::setcolorder(c('ID', 'PERIODO', 'FLAG_OUTLIER', 'IMPUTADA','VALOR')) %>% {.[]}
@@ -178,7 +178,7 @@ inspeciona_outlier.data.table <- function(x, sentido = 1L, janela = 3, paralelo 
                    ~ {
                      melt(.x, measure = 1:2, value.name = 'VALOR', variable.name = 'SERIE') %>%
                      {.[, DATA := data]} %>% 
-                     {.[str_detect(SERIE, '_IMPUTADA$'), `:=`(SERIE =  str_remove(SERIE, '_IMPUTADA$'), IMPUTADA = 1L)]} %>% 
+                     {.[stringr::str_detect(SERIE, '_IMPUTADA$'), `:=`(SERIE =  stringr::str_remove(SERIE, '_IMPUTADA$'), IMPUTADA = 1L)]} %>% 
                      {.[is.na(IMPUTADA), IMPUTADA := 0L]} %>% 
                        data.table::setnames(grep('_FLAG_OUTLIER$', names(.), value = T), 'FLAG_OUTLIER') %>% 
                        data.table::setcolorder(c('DATA','SERIE','FLAG_OUTLIER','IMPUTADA','VALOR')) %>% {.[]}
