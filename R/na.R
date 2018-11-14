@@ -7,14 +7,14 @@
 #' @export
 #' @return Tabela com descrição de NA ou data.frame original sem variáveis excluídas.
 #' 
-na_prop <- function(dt, drop = FALSE, corte = if(drop) 0.5 else 0) UseMethod("na_prop", dt)
+na_prop <- function(dt, ...) UseMethod("na_prop", dt)
 
 
 #' @method na_prop data.table
 #' 
 #' @export
 #' 
-na_prop.data.table <- function(dt, drop = FALSE, corte = if(drop) 0.5 else 0) {
+na_prop.data.table <- function(dt, drop = FALSE, corte = if(drop) 0.5 else 0, ...) {
 
   if (!data.table::between(corte, 0, 1)) stop("'corte' deve ser uma proporcao.")
 
@@ -43,4 +43,4 @@ na_prop.data.table <- function(dt, drop = FALSE, corte = if(drop) 0.5 else 0) {
 #' 
 #' @export
 #' 
-na_prop.data.frame <- function(dt, drop = FALSE, corte = if(drop) 0.5 else 0) na_prop.data.table(data.table::setDT(dt), ...)
+na_prop.data.frame <- function(dt, ...) na_prop.data.table(data.table::setDT(dt), ...)

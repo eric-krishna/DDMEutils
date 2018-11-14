@@ -4,7 +4,7 @@
 \alias{na_prop}
 \title{Descreve proporção de NA por variáveis de uma tabela}
 \usage{
-na_prop(dt, drop = FALSE, corte = if (drop) 0.5 else 0)
+na_prop(dt, ...)
 }
 \arguments{
 \item{dt}{Um data.table}
