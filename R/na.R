@@ -8,7 +8,7 @@
 
 na_prop <- function(dt, drop = FALSE, corte = if (drop) 0.5 else 0) {
 
-  if(!corte %between% c(0,1)) stop("'corte' deve ser uma proporcao.")
+  if (!data.table::between(corte, 0, 1)) stop("'corte' deve ser uma proporcao.")
 
   n <- nrow(dt)
 
@@ -23,10 +23,10 @@ na_prop <- function(dt, drop = FALSE, corte = if (drop) 0.5 else 0) {
 
   to_drop <- tabela[PROPORCAO_NA > corte][['VARIAVEL']]
 
-  if(drop && length(to_drop) > 0L) {
+  if (drop && length(to_drop) > 0L) {
     dt[, (to_drop) := NULL][]
-    cat(paste0('Removendo as seguintes colunas:\n',paste(to_drop,collapse ='\n')))
-  } else if(!drop) tabela[PROPORCAO_NA >= corte][order(-PROPORCAO_NA)]
+    cat(paste0('Removendo as seguintes colunas:\n', paste(to_drop, collapse ='\n')))
+  } else if (!drop) tabela[PROPORCAO_NA >= corte][order(-PROPORCAO_NA)]
   else tabela[order(-PROPORCAO_NA)]
 
 }
