@@ -2,20 +2,18 @@
 % Please edit documentation in R/na.R
 \name{na_prop}
 \alias{na_prop}
-\title{Descreve proporção de NA por variáveis de uma tabela}
+\title{Descreve proporcao de NA por variáveis de uma tabela}
 \usage{
-na_prop(dt, ...)
+na_prop(dt, corte = 0)
 }
 \arguments{
-\item{dt}{Um data.table}
+\item{corte}{Numerico entre 0 e 1 para limitar \code{print} da tabela com descricao.}
 
-\item{drop}{TRUE/FALSE para remover variável que possui mais do que proporção \code{corte} de NA}
-
-\item{corte}{Numérico entre 0 e 1. Com \code{drop = FALSE}, só trunca a descrição; com \code{drop = TRUE}, é a condição para remover variáveis.}
+\item{x}{Uma tabela}
 }
 \value{
-Tabela com descrição de NA ou data.frame original sem variáveis excluídas.
+Tabela com descrição de NAs por coluna.
 }
 \description{
-Descreve proporção de NA por variáveis de uma tabela
+Descreve proporcao de NA por variáveis de uma tabela
 }

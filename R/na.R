@@ -1,46 +1,26 @@
-#' Descreve proporção de NA por variáveis de uma tabela
+#' Descreve proporcao de NA por variáveis de uma tabela
 #'
-#' @param dt Um data.table
-#' @param drop TRUE/FALSE para remover variável que possui mais do que proporção \code{corte} de NA
-#' @param corte Numérico entre 0 e 1. Com \code{drop = FALSE}, só trunca a descrição; com \code{drop = TRUE}, é a condição para remover variáveis.
+#' @param x Uma tabela
+#' @param corte Numerico entre 0 e 1 para limitar \code{print} da tabela com descricao. 
 #'
 #' @export
-#' @return Tabela com descrição de NA ou data.frame original sem variáveis excluídas.
+#' @return Tabela com descrição de NAs por coluna.
 #' 
-na_prop <- function(dt, ...) UseMethod("na_prop", dt)
 
+na_prop <- function(dt, corte = 0) {
 
-#' @method na_prop data.table
-#' 
-#' @export
-#' 
-na_prop.data.table <- function(dt, drop = FALSE, corte = if(drop) 0.5 else 0, ...) {
-
-  if (!data.table::between(corte, 0, 1)) stop("'corte' deve ser uma proporcao.")
+  if (! corte %between% c(0, 1)) stop("\n'corte' deve ser uma proporcao.\n")
 
   n <- nrow(dt)
+  
+  if (!is.data.table(dt)) 
+    dt <- as.data.table(dt)
 
-
-  tabela <-
-    t(dt[,purrr::map(.SD, ~ sum(is.na(.x)))]) %>%
-    as.data.frame() %>%
-    tibble::rownames_to_column() %>%
-    dplyr::mutate(N_TOTAL = n, PROPORCAO_NA = V1 / N_TOTAL) %>%
-    data.table::setDT() %>%
-    data.table::setnames(c('VARIAVEL', 'N_MISSING', 'N_TOTAL', 'PROPORCAO_NA'))
-
-  to_drop <- tabela[PROPORCAO_NA > corte][['VARIAVEL']]
-
-  if (drop && length(to_drop) > 0L) {
-    dt[, (to_drop) := NULL][]
-    cat(paste0('Removendo as seguintes colunas:\n', paste(to_drop, collapse ='\n')))
-  } else if (!drop) tabela[PROPORCAO_NA >= corte][order(-PROPORCAO_NA)]
-  else tabela[order(-PROPORCAO_NA)]
-
+  dt[, purrr::map(.SD, ~ sum(is.na(.x)))] %>% 
+    t() %>% 
+    as.data.table(keep.rownames = "VARIAVEL") %>% 
+    .[, .(VARIAVEL,
+          N_MISSING = V1,
+          N_TOTAL = N_TOTAL <- n,
+          PROPORCAO_NA = V1 / N_TOTAL)]
 }
-
-#' @method na_prop data.frame
-#' 
-#' @export
-#' 
-na_prop.data.frame <- function(dt, ...) na_prop.data.table(data.table::setDT(dt), ...)
