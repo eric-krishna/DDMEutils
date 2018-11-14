@@ -8,13 +8,12 @@ knitr::opts_chunk$set(echo = TRUE,
                       error = FALSE,
                       message = FALSE,
                       fig.path = "README_figs/README-")
-library("devtools")
-library("tidyverse")
-library("magrittr")
-library("data.table")
+# library("devtools")
+# install_github("eric-krishna/DDMEutils")
+library("DDMEutils")
+#library("dplyr")
 library("ggplot2")
 library("knitr")
-load_all()
 ```
  
 # DDME - Repositório de funções do R úteis para o dia a dia
@@ -50,7 +49,7 @@ x_alterado[49:55]
 ```{r}
 x_alterado %>% 
   melt(id = "DATA", measure = patterns("SERIE")) %>% 
-  mutate(variable = factor(variable, labels = c("Original","Imputada"))) %>% {.[]} %>% 
+  dplyr::mutate(variable = factor(variable, labels = c("Original","Imputada"))) %>% {.[]} %>% 
   ggplot(aes(DATA,value,color = variable)) +
   geom_line() +
   labs(x = "Índice", y = "Valores", color = "") + 
@@ -78,12 +77,12 @@ d1[,1:10]
 
 # Formato de saída "wide"
 inspeciona_outlier(d1, sentido = 1) %>% 
-  sample_n(10) %>% 
+  dplyr::sample_n(10) %>% 
   {.[order(ID,PERIODO)]}
 
 # Formato de saída "long"
 inspeciona_outlier(d1, sentido = 1, out_format = "long") %>% 
-  sample_n(10) %>% 
+  dplyr::sample_n(10) %>% 
   {.[order(ID,PERIODO)]}
 ```
 
@@ -100,7 +99,7 @@ inspeciona_outlier(d2, sentido = 2) %>% head()
 
 # Formato de saída "long"
 inspeciona_outlier(d2, sentido = 2, out_format = "long") %>% 
-  sample_n(10) %>% 
+  dplyr::sample_n(10) %>% 
   {.[order(SERIE,DATA)]}
 ```
 

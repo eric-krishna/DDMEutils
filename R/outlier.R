@@ -100,7 +100,7 @@ inspeciona_outlier.data.table <- function(x, sentido = 1L, janela = 3, paralelo 
     options(future.globals.maxSize = +Inf)
    # on.exit(future::plan(future::sequential))
   } else {
-    plan(sequential)
+    future::plan(future::sequential)
     progress <- FALSE
   }  
     
@@ -118,9 +118,11 @@ inspeciona_outlier.data.table <- function(x, sentido = 1L, janela = 3, paralelo 
            
            x <- furrr::future_map(seq_len(nrow(x)),
                                   ~ {
-                                   as.ts(as.numeric(x[.x])) %>% 
-                                     inspeciona_outlier.ts(janela = janela, anom_method = anom_method) %>%
-                                     {.[, `:=`(DATA = NULL, PERIODO = data, ID = ids[.x])][]}
+                                    x[.x] %>% 
+                                      as.numeric() %>% 
+                                      as.ts() %>% 
+                                      inspeciona_outlier.ts(janela = janela, anom_method = anom_method) %>%
+                                      {.[, `:=`(DATA = NULL, PERIODO = data, ID = ids[.x])][]}
                                    },
                                   .progress = progress) %>%
              data.table::rbindlist()
