@@ -2,7 +2,7 @@
 % Please edit documentation in R/na.R
 \name{na_prop}
 \alias{na_prop}
-\title{Descreve proporcao de NA por variáveis de uma tabela}
+\title{NA por colunas}
 \usage{
 na_prop(dt, corte = 0)
 }
@@ -15,5 +15,5 @@ na_prop(dt, corte = 0)
 Tabela com descrição de NAs por coluna.
 }
 \description{
-Descreve proporcao de NA por variáveis de uma tabela
+Descreve proporcao de NA por variáveis de um data.frame
 }
