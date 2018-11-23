@@ -1,12 +1,26 @@
-#' Inspeção de sazonalidade para séries temporais
+#' Inspeccao de sazonalidade para series temporais
+#' 
+#' @param x Um objeto ts ou data.frame
+#' @param \code{tendencia} \code{TRUE/FALSE} indicando se o metodo deve ser aplicado considerando series com tendencia.
+#' @param \code{sentido} Quando x eh data.frame, \code{sentido = 1} quando as series temporais estao por linha; e \code{sentido = 2} caso estejam por colunas.
+#' @param \code{periodo} \code{'mes','semana','dia','ano','trimestre','quadrimestre','semestre','qualquer'}.
+#' @param \code{...} Outros argumentos para quando \code{x} for um data.frame (\code{paralelo, idcol, dtcol}). Veja a seccao de detalhes.
+#' 
+#' 
+#'
+#' @details 
+#' Quando \code{sentido = 1}, \code{idcol} especifica o indice da coluna que possui os identificadores das series. 
+#' Quando \code{sentido = 2}, \code{dtcol} especifica o indice da coluna de datas.
+#' \code{paralelo} TRUE/FALSE indicando se o processo deve ser feito em paralelo. Quando \code{TRUE}, eh feito por meio dos pacotes \code{future} e \code{furrr}.
 #' 
 #' @export
-inspeciona_sazonalidade <- function(x, ...) UseMethod("inspeciona_sazonalidade", x)
+insp_sazo <- function(x, ...) UseMethod("insp_sazo", x)
 
-#' @method inspeciona_outlier ts
+
+#' @method insp_sazo ts
 #' @export
 #' 
-inspeciona_sazonalidade.ts <- function(x, tendencia = TRUE) {
+insp_sazo.ts <- function(x, tendencia = TRUE) {
   
   e_sazonal <- forecast::tbats(x, 
                                use.trend = tendencia,
@@ -19,20 +33,28 @@ inspeciona_sazonalidade.ts <- function(x, tendencia = TRUE) {
   
 }
 
-#' @method inspeciona_outlier data.table
+
+#' @method insp_sazo data.frame
 #' @export
 #' 
-inspeciona_sazonalidade.data.table <- function(x, tendencia = TRUE, sentido = 1L, paralelo = FALSE, 
-                                               periodo = c('mes','semana','dia','ano','trimestre','quadrimestre','semestre','qualquer'),
-                                               idcol = if(sentido == 1L) 1L else NULL, 
-                                               dtcol = if(sentido == 2L) 1L else NULL, ...) {
+insp_sazo.data.frame <- function(x, tendencia = TRUE, sentido = 1L, paralelo = FALSE, 
+                                 periodo = c('mes','semana','dia','ano','trimestre',
+                                             'quadrimestre','semestre','qualquer'),
+                                 idcol = if(sentido == 1L) 1L else NULL, 
+                                 dtcol = if(sentido == 2L) 1L else NULL, ...) {
   
-  if (! sentido %in% 1L:2L) stop('Sentido deve ser 1 (linha) ou 2 (coluna)')
+  if (! sentido %in% 1L:2L) 
+    stop('Sentido deve ser 1 (linha) ou 2 (coluna)')
   
-  if (!is.null(idcol) && !idcol %in% c(0L,seq_along(x))) stop('`idcol` deve indicar uma coluna pertencente aos dados')
+  if (!is.null(idcol) && !idcol %in% c(0L,seq_along(x))) 
+    stop('`idcol` deve indicar uma coluna pertencente aos dados')
   
-  if( !is.null(dtcol) && !dtcol %in% c(0L,seq_along(x))) stop('`dtcol` deve indicar uma coluna pertencente aos dados')
+  if( !is.null(dtcol) && !dtcol %in% c(0L,seq_along(x))) 
+    stop('`dtcol` deve indicar uma coluna pertencente aos dados')
   
+  
+  if (!is.data.table(x)) 
+    setDT(x)
   
   periodo <- match.arg(periodo) %>% switch('dia' = 365, 'semana' = 52, 'mes' = 12, 'ano' = 1,
                                            'trimestre' = 4,'quadrimestre' = 3,'semestre' = 2,
@@ -101,12 +123,3 @@ inspeciona_sazonalidade.data.table <- function(x, tendencia = TRUE, sentido = 1L
   
 }
 
-#' @method inspeciona_outlier tbl_df
-#' @export
-#' 
-inspeciona_sazonalidade.tbl_df <- function(x, ...) tibble::as_tibble(inspeciona_sazonalidade(data.table::setDT(x), ...))
-
-#' @method inspeciona_outlier data.frame
-#' @export
-#' 
-inspeciona_sazonalidade.data.frame <- function(x, ...) inspeciona_outlier(data.table::setDT(x), ...)

@@ -1,28 +1,24 @@
-#' Inspeção de outliers para séries temporais
+#' Inspeccao de outliers para series temporais
+#' 
+#' @param x Um objeto ts ou data.frame
+#' @param janela Inteiro indicando tamanho da janela movel para calculo dos inputs de outliers. 
+#' @param \code{anom_method} chr indicando "gesd" ou "iqr", argumento da funcao anomalize::anomalize().
+#' @param \code{...} Parametros adicionais para quando \code{x} eh um data.frame. Veja detalhes.
+#' 
+#' @details 
+#' Quando \code{sentido = 1}, \code{idcol} especifica o indice da coluna que possui os identificadores das series. 
+#' Quando \code{sentido = 2}, \code{dtcol} especifica o indice da coluna de datas.
+#' \code{paralelo} TRUE/FALSE indicando se o processo deve ser feito em paralelo. Quando \code{TRUE}, eh feito por meio dos pacotes \code{future} e \code{furrr}.
+#' \code{out_format} chr "wide" ou "long", indicando formato da tabela de saida. Se \code{sentido = 2} e a dimensao das series for alta, indica-se \code{out_format = "long"}.
+
 #' 
 #' @export
-inspeciona_outlier <- function(x, ...) UseMethod('inspeciona_outlier', x)
+insp_outlier <- function(x, ...) UseMethod('insp_outlier', x)
 
-#' @method inspeciona_outlier numeric
-#' @export
-#' 
-inspeciona_outlier.numeric <- function(x, ...) inspeciona_outlier.ts(as.ts(x), ...)
 
-#' @method inspeciona_outlier integer
+#' @method insp_outlier ts
 #' @export
-inspeciona_outlier.integer <- function(x, ...) inspeciona_outlier.ts(as.ts(x), ...)
-
-#' @method inspeciona_outlier tbl_df
-#' @export
-inspeciona_outlier.tbl_df <- function(x, ...) as_tibble(inspeciona_outlier(data.table::setDT(x), ...))
-
-#' @method inspeciona_outlier data.frame
-#' @export
-inspeciona_outlier.data.frame <- function(x, ...) inspeciona_outlier(data.table::setDT(x), ...)
-
-#' @method inspeciona_outlier ts
-#' @export
-inspeciona_outlier.ts <- function(x, janela = 3, anom_method = c('gesd','iqr')) {
+insp_outlier.ts <- function(x, janela = 3, anom_method = c('gesd','iqr')) {
   
   n <- length(x)
   
@@ -39,7 +35,7 @@ inspeciona_outlier.ts <- function(x, janela = 3, anom_method = c('gesd','iqr')) 
       dplyr::pull(DATA)
   )
   
-  bs %>% data.table::setDT()
+  setDT(bs)
   
   novas <- c('SERIE_IMPUTADA', 'FLAG_OUTLIER')
   
@@ -71,26 +67,33 @@ inspeciona_outlier.ts <- function(x, janela = 3, anom_method = c('gesd','iqr')) 
     
     bs[, c('jan_min','jan_max') := NULL][]
     
-  } else suppressWarnings({bs[, (novas) := list(NA_real_, 0L)][]})
+  } else {
+    suppressWarnings({bs[, (novas) := list(NA_real_, 0L)][]})
+  }
   
   bs
   
 }
 
-#' @method inspeciona_outlier data.table
+#' @method insp_outlier data.frame
 #' @export
-inspeciona_outlier.data.table <- function(x, sentido = 1L, janela = 3, paralelo = FALSE, out_format = c('wide','long'), anom_method = c('gesd','iqr'),
-                                          idcol = if(sentido == 1L) 1L else NULL,  dtcol = if(sentido == 2L) 1L else NULL) {
+insp_outlier.data.frame <- function(x, sentido = 1L, janela = 3, paralelo = FALSE, out_format = c('wide','long'), anom_method = c('gesd','iqr'),
+                                    idcol = if(sentido == 1L) 1L else NULL,  dtcol = if(sentido == 2L) 1L else NULL) {
   
   out_format <- match.arg(out_format)
   
   anom_method <- match.arg(anom_method)
   
-  if (! sentido %in% 1L:2L) stop('Sentido deve ser 1 (linha) ou 2 (coluna)')
+  if (! sentido %in% 1L:2L) 
+    stop('Sentido deve ser 1 (linha) ou 2 (coluna)')
   
-  if (!is.null(idcol) && !idcol %in% c(0L,seq_along(x))) stop('`idcol` deve indicar uma coluna pertencente aos dados')
+  if (!is.null(idcol) && !idcol %in% c(0L,seq_along(x))) 
+    stop('`idcol` deve indicar uma coluna pertencente aos dados')
   
-  if( !is.null(dtcol) && !dtcol %in% c(0L,seq_along(x))) stop('`dtcol` deve indicar uma coluna pertencente aos dados')
+  if( !is.null(dtcol) && !dtcol %in% c(0L,seq_along(x))) 
+    stop('`dtcol` deve indicar uma coluna pertencente aos dados')
+  
+  if (!is.data.table(x)) setDT(x)
   
   # options(future.globals.maxSize = +Inf) nao recomendado para x de alta dimensao com paralelo == TRUE e OS Windows
   
@@ -114,18 +117,18 @@ inspeciona_outlier.data.table <- function(x, sentido = 1L, janela = 3, paralelo 
              x %<>% .[, -..idcol] 
            }
            
-           data <- data.table::copy(names(x))
+           data <- copy(names(x))
            
            x <- furrr::future_map(seq_len(nrow(x)),
                                   ~ {
                                     x[.x] %>% 
                                       as.numeric() %>% 
                                       as.ts() %>% 
-                                      inspeciona_outlier.ts(janela = janela, anom_method = anom_method) %>%
+                                      insp_outlier.ts(janela = janela, anom_method = anom_method) %>%
                                       {.[, `:=`(DATA = NULL, PERIODO = data, ID = ids[.x])][]}
                                    },
                                   .progress = progress) %>%
-             data.table::rbindlist()
+             rbindlist()
            
            future::plan(future::sequential)
            
@@ -159,7 +162,7 @@ inspeciona_outlier.data.table <- function(x, sentido = 1L, janela = 3, paralelo 
              furrr::future_map2(seq_along(.), 
                                 ~ {
                                   as.ts(.x) %>% 
-                                    inspeciona_outlier.ts(janela = janela, anom_method = anom_method) %>% 
+                                    insp_outlier.ts(janela = janela, anom_method = anom_method) %>% 
                                     data.table::setnames(old = c('SERIE', 'SERIE_IMPUTADA', 'FLAG_OUTLIER'),
                                                          new = paste0(nomes[.y + acr], c('', '_IMPUTADA', '_FLAG_OUTLIER'))) %>% 
                                     {.[, -1L]}
