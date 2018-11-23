@@ -1,4 +1,4 @@
-#' Inspeccao de sazonalidade para series temporais
+#' Inspecao de sazonalidade para series temporais
 #' 
 #' @param x Um objeto ts ou data.frame
 #' @param \code{tendencia} \code{TRUE/FALSE} indicando se o metodo deve ser aplicado considerando series com tendencia.
