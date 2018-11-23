@@ -2,7 +2,7 @@
 % Please edit documentation in R/sazonalidade.R
 \name{insp_sazo}
 \alias{insp_sazo}
-\title{Inspeccao de sazonalidade para series temporais}
+\title{Inspecao de sazonalidade para series temporais}
 \usage{
 insp_sazo(x, ...)
 }
@@ -18,7 +18,7 @@ insp_sazo(x, ...)
 \item{\code{...}}{Outros argumentos para quando \code{x} for um data.frame (\code{paralelo, idcol, dtcol}). Veja a seccao de detalhes.}
 }
 \description{
-Inspeccao de sazonalidade para series temporais
+Inspecao de sazonalidade para series temporais
 }
 \details{
 Quando \code{sentido = 1}, \code{idcol} especifica o indice da coluna que possui os identificadores das series. 
