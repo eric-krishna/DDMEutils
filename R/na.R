@@ -22,5 +22,6 @@ na_prop <- function(dt, corte = 0) {
     .[, .(VARIAVEL,
           N_MISSING = V1,
           N_TOTAL = N_TOTAL <- n,
-          PROPORCAO_NA = V1 / N_TOTAL)]
+          PROPORCAO_NA = V1 / N_TOTAL)] %>% 
+    .[PROPORCAO_NA >= corte]
 }
