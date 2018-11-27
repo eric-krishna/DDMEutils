@@ -65,11 +65,6 @@ subs_na <- function(x, byref = FALSE, ...) {
   if (depth == 3L) 
     mudancas <- unlist(mudancas, recursive = F)
   
-  if (!is.data.table(x)) {
-    setDT(x)
-    warning("\ndata.frame convertido para data.table.\n")
-  }
-  
   if (byref) dt <- x else dt <- copy(x)
   
   quais <- names(mudancas)

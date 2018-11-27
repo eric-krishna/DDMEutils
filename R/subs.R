@@ -23,11 +23,6 @@ subs_any <- function(x, byref = FALSE, ...) {
   
   mudancas <- list(...)
   
-  if (!is.data.table(x)) {
-    setDT(x)
-    warning("\ndata.frame convertido para data.table.\n")
-  }
-  
   if (byref) dt <- x else dt <- copy(x)
   
   quais <- names(mudancas)
