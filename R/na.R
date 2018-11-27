@@ -45,13 +45,13 @@ na_prop <- function(dt, corte = 0) {
 #' 
 #' @details 
 #' 
-#' As substituicoes deve ser da forma: \code{na_subs(x, byref, nome_1 = "?", nome_2 = 9999, "[0-9]{2}$" = 0)} ou
-#' encapsuladas por \code{list()}, como: \code{na_subs(x, byref, list(nome_1 = "?", nome_2 = 9999, "[0-9]{2}$" = 0))}.
+#' As substituicoes devem ser da forma: \code{subs_na(x, byref, nome_1 = "?", nome_2 = 9999, "[0-9]{2}$" = 0)} ou
+#' encapsuladas por \code{list()}, como: \code{subs_na(x, byref, list(nome_1 = "?", nome_2 = 9999, "[0-9]{2}$" = 0))}.
 #' 
 #' 
 #' @export
 
-na_subs <- function(x, byref = T, ...) {
+subs_na <- function(x, byref = FALSE, ...) {
   
   if (!is.data.frame(x)) 
     stop("\nMetodo aplicado para tabelas\n")
@@ -67,7 +67,7 @@ na_subs <- function(x, byref = T, ...) {
   
   if (!is.data.table(x)) {
     setDT(x)
-    warning("\nConvertendo data.frame para data.table...\n")
+    warning("\ndata.frame convertido para data.table.\n")
   }
   
   if (byref) dt <- x else dt <- copy(x)
@@ -87,11 +87,13 @@ na_subs <- function(x, byref = T, ...) {
   
   for( reg in rgx ) {
     
-    reg_cols <- tryCatch(grep(reg, names(dt), value = T), 
-                         error = function(e) character(0))
+    reg_cols <- tryCatch(
+      grep(reg, names(dt), value = T), 
+      error = function(e) character(0)
+    )
     
-    if (length(reg_cols) == 0) 
-      warning(glue::glue("\nSem colunas correspondentes para regex ({reg})...\n"))
+    if (length(reg_cols) == 0L) 
+      warning(glue::glue("\nSem colunas correspondentes para regex ({reg}).\n"))
     
     for (j in reg_cols ) 
       set(dt, which(is.na(dt[[j]])), j, value = mudancas[[reg]])
