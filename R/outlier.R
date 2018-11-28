@@ -138,9 +138,9 @@ insp_outlier.data.frame <- function(x, sentido = 1L, janela = 3, paralelo = FALS
                {.[stringr::str_detect(SERIE, '_IMPUTADA$'), `:=`(SERIE =  stringr::str_remove(SERIE, '_IMPUTADA$'), IMPUTADA = 1L)]} %>% 
                {.[is.na(IMPUTADA), IMPUTADA := 0L]} %>% 
                {.[, SERIE := NULL]} %>% 
-               data.table::setcolorder(c('ID', 'PERIODO', 'FLAG_OUTLIER', 'IMPUTADA','VALOR')) %>% {.[]}
+               setcolorder(c('ID', 'PERIODO', 'FLAG_OUTLIER', 'IMPUTADA','VALOR')) %>% {.[]}
            } else {
-             x %<>% data.table::setcolorder(c('ID','PERIODO')) %>% {.[]}
+             x %<>% setcolorder(c('ID','PERIODO')) %>% {.[]}
            }
            
          },
@@ -150,7 +150,7 @@ insp_outlier.data.frame <- function(x, sentido = 1L, janela = 3, paralelo = FALS
            nomes <- names(x)
            acr <- 1L
            if (is.null(dtcol) | dtcol == 0) {
-             data <- data.table::data.table(seq_len(nrow(x)))
+             data <- data.table(seq_len(nrow(x)))
              acr <- 0L
              dtcol <- 1L
            } else {
@@ -171,7 +171,7 @@ insp_outlier.data.frame <- function(x, sentido = 1L, janela = 3, paralelo = FALS
           
            if (out_format == 'wide') {
              
-             x %<>% dplyr::bind_cols(data, .) %>% data.table::setnames(names(.)[1L], 'DATA') %>% {.[]} # mais rapido do que Reduce(merge, x)
+             x %<>% dplyr::bind_cols(data, .) %>% setnames(names(.)[1L], 'DATA') %>% {.[]} # mais rapido do que Reduce(merge, x)
              
            } else {
              
@@ -183,8 +183,8 @@ insp_outlier.data.frame <- function(x, sentido = 1L, janela = 3, paralelo = FALS
                      {.[, DATA := data]} %>% 
                      {.[stringr::str_detect(SERIE, '_IMPUTADA$'), `:=`(SERIE =  stringr::str_remove(SERIE, '_IMPUTADA$'), IMPUTADA = 1L)]} %>% 
                      {.[is.na(IMPUTADA), IMPUTADA := 0L]} %>% 
-                       data.table::setnames(grep('_FLAG_OUTLIER$', names(.), value = T), 'FLAG_OUTLIER') %>% 
-                       data.table::setcolorder(c('DATA','SERIE','FLAG_OUTLIER','IMPUTADA','VALOR')) %>% {.[]}
+                       setnames(grep('_FLAG_OUTLIER$', names(.), value = T), 'FLAG_OUTLIER') %>% 
+                       setcolorder(c('DATA','SERIE','FLAG_OUTLIER','IMPUTADA','VALOR')) %>% {.[]}
                    },
                    .progress = progress
                  )
