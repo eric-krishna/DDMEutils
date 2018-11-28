@@ -86,7 +86,7 @@ insp_sazo.data.frame <- function(x, tendencia = TRUE, sentido = 1L, paralelo = F
                                       ~ {
                                         data.frame(
                                           ID = ids[.x],
-                                          SAZONALIDADE = x[.x, ] %>% ts(frequency = periodo) %>% inspeciona_sazonalidade.ts(tendencia = tendencia),
+                                          SAZONALIDADE = x[.x, ] %>% ts(frequency = periodo) %>% insp_sazo.ts(tendencia = tendencia),
                                           stringsAsFactors = FALSE
                                         )
                                       },
@@ -108,7 +108,7 @@ insp_sazo.data.frame <- function(x, tendencia = TRUE, sentido = 1L, paralelo = F
                                       ~ {
                                         data.frame(
                                           ID = ids[.x],
-                                          SAZONALIDADE = x[[.x]] %>% ts(frequency = periodo) %>% inspeciona_sazonalidade.ts(tendencia = tendencia),
+                                          SAZONALIDADE = x[[.x]] %>% ts(frequency = periodo) %>% insp_sazo.ts(tendencia = tendencia),
                                           stringsAsFactors = FALSE
                                         )
                                       }, 
