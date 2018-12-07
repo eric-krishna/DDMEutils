@@ -54,7 +54,7 @@ insp_sazo.data.frame <- function(x, tendencia = TRUE, sentido = 1L, paralelo = F
   
   
   if (!is.data.table(x)) 
-    setDT(x)
+    x <- as.data.table(x)
   
   periodo <- match.arg(periodo) %>% switch('dia' = 365, 'semana' = 52, 'mes' = 12, 'ano' = 1,
                                            'trimestre' = 4,'quadrimestre' = 3,'semestre' = 2,
@@ -86,12 +86,12 @@ insp_sazo.data.frame <- function(x, tendencia = TRUE, sentido = 1L, paralelo = F
                                       ~ {
                                         data.frame(
                                           ID = ids[.x],
-                                          SAZONALIDADE = x[.x, ] %>% ts(frequency = periodo) %>% inspeciona_sazonalidade.ts(tendencia = tendencia),
+                                          SAZONALIDADE = x[.x, ] %>% ts(frequency = periodo) %>% insp_sazo.ts(tendencia = tendencia),
                                           stringsAsFactors = FALSE
                                         )
                                       },
                                       .progress = progress) %>% 
-             data.table::setDT()
+             as.data.table()
            
          },
          
@@ -101,19 +101,19 @@ insp_sazo.data.frame <- function(x, tendencia = TRUE, sentido = 1L, paralelo = F
              ids <- seq_len(nrow(x)) 
            } else {
              x %<>% .[, -..dtcol]
-             ids <- data.table::copy(names(x))
+             ids <- copy(names(x))
            }
            
            x <- furrr::future_map_dfr(seq_len(ncol(x)), 
                                       ~ {
                                         data.frame(
                                           ID = ids[.x],
-                                          SAZONALIDADE = x[[.x]] %>% ts(frequency = periodo) %>% inspeciona_sazonalidade.ts(tendencia = tendencia),
+                                          SAZONALIDADE = x[[.x]] %>% ts(frequency = periodo) %>% insp_sazo.ts(tendencia = tendencia),
                                           stringsAsFactors = FALSE
                                         )
                                       }, 
                                       .progress = progress) %>% 
-             data.table::setDT()
+             as.data.table
            
          })
   
