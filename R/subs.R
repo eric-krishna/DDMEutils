@@ -69,7 +69,7 @@ subs_any <- function(x, byref = FALSE, ...) {
 #' substitui\u00e7\u00e3o deve ser feitas nos nomes das vari\u00e1veis e nos valores delas, respectivamente. 
 #' 
 #' @export
-subs_utf8_punct <- function(x, manter = NULL, ...) UseMethod('subs_utf8_char', x)
+subs_utf8_punct <- function(x, manter = NULL, ...) UseMethod('subs_utf8_punct', x)
 
 #' @method subs_utf8_punct character
 #' @export
