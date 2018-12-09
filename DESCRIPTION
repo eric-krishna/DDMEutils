@@ -13,17 +13,14 @@ LazyData: true
 RoxygenNote: 6.1.1
 Depends: 
     R (>= 3.0.0),
-    magrittr,
-    data.table
-Imports: 
     data.table,
-    dplyr,
-    tibble,
-    anomalize,
     magrittr,
-    purrr,
-    future,
+    purrr
+Imports: 
+    anomalize,
+    dplyr,
+    forecast,
     furrr,
     stringr,
-    zoo,
-    forecast
+    tibble,
+    zoo

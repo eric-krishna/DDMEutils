@@ -1,84 +1,81 @@
-#' Inspecao de sazonalidade para series temporais
+#' Time series seasonality inspection 
 #' 
-#' @param x Um objeto ts ou data.frame
-#' @param \code{tendencia} \code{TRUE/FALSE} indicando se o metodo deve ser aplicado considerando series com tendencia.
-#' @param \code{sentido} Quando x eh data.frame, \code{sentido = 1} quando as series temporais estao por linha; e \code{sentido = 2} caso estejam por colunas.
-#' @param \code{periodo} \code{'mes','semana','dia','ano','trimestre','quadrimestre','semestre','qualquer'}.
+#' @param x ts or data.frame
+#' @param trend \code{TRUE/FALSE} indicating if input time series has trend.
+#' @param margin For data.frames, \code{margin = 1} if multiple time series are framed row-wise; while \code{margin = 2} if column-wise.
+#' @param periodicity \code{'month','week','day','year','three_months','four_months','six_months','any'}.
 #' @param \code{...} Outros argumentos para quando \code{x} for um data.frame (\code{paralelo, idcol, dtcol}). Veja a seccao de detalhes.
 #' 
 #' 
 #'
 #' @details 
-#' Quando \code{sentido = 1}, \code{idcol} especifica o indice da coluna que possui os identificadores das series. 
-#' Quando \code{sentido = 2}, \code{dtcol} especifica o indice da coluna de datas.
-#' \code{paralelo} TRUE/FALSE indicando se o processo deve ser feito em paralelo. Quando \code{TRUE}, eh feito por meio dos pacotes \code{future} e \code{furrr}.
+#' When \code{margin = 1}, set \code{idcol} to an integer pointing out the index column that identifies the time series.
+#' When \code{margin = 2}, set \code{dtcol} to an integer pointing out the date column. 
+#' .parallel TRUE/FALSE if tasks should be parallelized. If \code{TRUE}, uses \code{future} and \code{furrr} packages.
 #' 
 #' @export
-insp_sazo <- function(x, ...) UseMethod("insp_sazo", x)
+insp_seasonality <- function(x, ...) UseMethod("insp_seasonality", x)
 
 
-#' @method insp_sazo ts
+#' @method insp_seasonality ts
 #' @export
 #' 
-insp_sazo.ts <- function(x, tendencia = TRUE) {
+insp_seasonality.ts <- function(x, trend = FALSE) {
   
-  e_sazonal <- forecast::tbats(x, 
-                               use.trend = tendencia,
-                               use.box.cox = FALSE,
-                               use.damped.trend = FALSE,
-                               use.arma.errors = FALSE,
-                               use.parallel = FALSE)$seasonal.periods
+  e_seasonal <- forecast::tbats(x, 
+                                use.trend = trend,
+                                use.box.cox = FALSE,
+                                use.damped.trend = FALSE,
+                                use.arma.errors = FALSE,
+                                use.parallel = FALSE)$seasonal.periods
   
-  ifelse(is.null(e_sazonal), 0, e_sazonal)
+  ifelse(is.null(e_seasonal), 0, e_seasonal)
   
 }
 
 
-#' @method insp_sazo data.frame
+#' @method insp_seasonality data.frame
 #' @export
 #' 
-insp_sazo.data.frame <- function(x, tendencia = TRUE, sentido = 1L, paralelo = FALSE, 
-                                 periodo = c('mes','semana','dia','ano','trimestre',
-                                             'quadrimestre','semestre','qualquer'),
-                                 idcol = if(sentido == 1L) 1L else NULL, 
-                                 dtcol = if(sentido == 2L) 1L else NULL, ...) {
+insp_seasonality.data.frame <- function(x, trend = FALSE, margin = 1L, .parallel = FALSE, 
+                                        periodicity = c('month','week','day','year','three_months',
+                                                        'four_months','six_months','any'),
+                                        idcol = if(margin == 1L) 1L else NULL, 
+                                        dtcol = if(margin == 2L) 1L else NULL, ...) {
   
-  if (! sentido %in% 1L:2L) 
-    stop('Sentido deve ser 1 (linha) ou 2 (coluna)')
+  if (! margin %in% 1L:2L) 
+    stop('\nMargin should be 1 (rows) or 2 (columns)')
   
   if (!is.null(idcol) && !idcol %in% c(0L,seq_along(x))) 
-    stop('`idcol` deve indicar uma coluna pertencente aos dados')
+    stop('\n`idcol` should indicate an existing column')
   
   if( !is.null(dtcol) && !dtcol %in% c(0L,seq_along(x))) 
-    stop('`dtcol` deve indicar uma coluna pertencente aos dados')
+    stop('\n`dtcol` should indicate an existing column')
   
   
   if (!is.data.table(x)) 
     x <- as.data.table(x)
   
-  periodo <- match.arg(periodo) %>% switch('dia' = 365, 'semana' = 52, 'mes' = 12, 'ano' = 1,
-                                           'trimestre' = 4,'quadrimestre' = 3,'semestre' = 2,
-                                           'qualquer' = 1)
+  periodicity <- match.arg(periodicity) %>% switch('day' = 365, 'week' = 52, 'month' = 12, 'year' = 1,
+                                                   'three_months' = 4, 'four_months' = 3,'six_months' = 2,
+                                                   'any' = 1)
   
   
-  # options(future.globals.maxSize = +Inf) nao recomendado para x de alta dimensao com paralelo == TRUE e OS Windows
-  
-  if(paralelo) {
+  if(.parallel) {
     future::plan(future::multiprocess)
     progress <- TRUE
-    options(future.globals.maxSize = +Inf) 
   } else {
     future::plan(future::sequential)
     progress <- FALSE
   }  
   
-  switch(sentido,
+  switch(margin,
          '1' = {
            
            if (is.null(idcol) | idcol == 0) {
              ids <- seq_len(nrow(x))
            } else {
-             ids <- dplyr::pull(x[, ..idcol])
+             ids <- x[[idcol]]
              x %<>% .[, -..idcol] %>% as.matrix() 
            }
            
@@ -86,7 +83,11 @@ insp_sazo.data.frame <- function(x, tendencia = TRUE, sentido = 1L, paralelo = F
                                       ~ {
                                         data.frame(
                                           ID = ids[.x],
-                                          SAZONALIDADE = x[.x, ] %>% ts(frequency = periodo) %>% insp_sazo.ts(tendencia = tendencia),
+                                          SEASONALITY = {
+                                            x[.x, ] %>% 
+                                              ts(frequency = periodicity) %>% 
+                                              insp_seasonality.ts(trend = trend)
+                                          },
                                           stringsAsFactors = FALSE
                                         )
                                       },
@@ -108,12 +109,16 @@ insp_sazo.data.frame <- function(x, tendencia = TRUE, sentido = 1L, paralelo = F
                                       ~ {
                                         data.frame(
                                           ID = ids[.x],
-                                          SAZONALIDADE = x[[.x]] %>% ts(frequency = periodo) %>% insp_sazo.ts(tendencia = tendencia),
+                                          SEASONALITY = {
+                                            x[[.x]] %>% 
+                                              ts(frequency = periodicity) %>% 
+                                              insp_seasonality.ts(trend = trend)
+                                          },
                                           stringsAsFactors = FALSE
                                         )
                                       }, 
                                       .progress = progress) %>% 
-             as.data.table
+             as.data.table()
            
          })
   
