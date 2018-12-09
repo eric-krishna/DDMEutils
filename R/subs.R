@@ -1,17 +1,17 @@
-#' Substituiccao rapida de valores
+#' Fast value replacement
 #' 
 #' @description 
 #' 
-#' Substitui informacoes por valores de interesse. Eh possivel especificar nomes de colunas e/ou expressoes regulares
-#' com seus respectivos novos valores numa so chamada.
+#' Replaces specified values for any other in data.frame variables. Changes are made given column names 
+#' or regular expressions along with its replacements in a single call.
 #' 
-#' @param x Um data.frame
-#' @param byref \code{TRUE/FALSE} indicando se a imputacao de dados deve ser feita por referencia ou retornando uma nova tabela.
-#' @param \code{...} Substituicoes a serem feitas. Veja a seccao de detalhes.
+#' @param x A data.frame
+#' @param byref \code{TRUE/FALSE} indicating if data imputation should be made by reference. 
+#' @param \code{...} Syntax for replacements. See details.
 #' 
 #' @details 
 #' 
-#' As substituicoes devem ser da forma: \code{subs_any(x, byref, nome_1 = list("?",NA), nome_2 = list("#", 9999))}.
+#' Replacements must be as follows: \code{subs_any(x, byref, var_1 = list("?",NA), var_2 = list("#", 9999))}.
 #' 
 #' 
 #' @export
@@ -19,24 +19,24 @@
 subs_any <- function(x, byref = FALSE, ...) {
   
   if (!is.data.frame(x)) 
-    stop("\nMetodo aplicado para tabelas\n")
+    stop("\nApplicable for data.frame\n")
   
-  mudancas <- list(...)
+  changes <- list(...)
   
   if (byref) dt <- x else dt <- copy(x)
   
-  quais <- names(mudancas)
+  vars <- names(changes)
   
-  col <- quais[quais %in% names(dt)]
-  rgx <- setdiff(quais, col)
+  col <- vars[vars %in% names(dt)]
+  rgx <- setdiff(vars, col)
   
-  # Colunas explicitas
+  # Explicit columns
   
   for( j in col ) 
-    set(dt, which({dt[[j]] == mudancas[[j]][[1L]]}), j, value = mudancas[[j]][[2L]]) 
+    set(dt, which({dt[[j]] == changes[[j]][[1L]]}), j, value = changes[[j]][[2L]]) 
   
   
-  # Colunas por expressao regular
+  # By regex
   
   for( reg in rgx ) {
     
@@ -46,45 +46,59 @@ subs_any <- function(x, byref = FALSE, ...) {
     )
     
     if (length(reg_cols) == 0) 
-      warning(glue::glue("\nSem colunas correspondentes para regex ({reg}).\n"))
+      warning(glue::glue("\nNo matching columns for regex ({reg}).\n"))
     
     for (j in reg_cols ) 
-      set(dt, which({dt[[j]] == mudancas[[reg]][[1L]]}), j, value = mudancas[[reg]][[2L]])
+      set(dt, which({dt[[j]] == changes[[reg]][[1L]]}), j, value = changes[[reg]][[2L]])
     
   }
   
-  return( if (byref) invisible(dt) else dt )
+  if (byref) invisible(dt[]) else dt[]
   
 }
 
 
-#' Substitui caracteres com codifica\u00e7\u00e3o UTF-8 
+#' Manage punctuated headers and variables  
 #' 
-#' @param x chr, factor ou data.frame.
-#' @param manter vetor com caracteres que devem ser mantidos.
-#' @param ... par\u00e2metros adicionais para classes factor e data.frame, veja Detalhes.
+#' @description 
+#' Replace or drop UTF-8 characters and punctuation in headers or/and in char/factor variables.
 #' 
-#' @details Quando trabalhando com factor ou data.frame, \u00e9 poss\u00edvel fazer a substitui\u00e7\u00e3o por
-#' refer\u00eancia com \code{byref = TRUE}. Para data.frame, os booleanos \code{cols} e \code{vars} indicam se a
-#' substitui\u00e7\u00e3o deve ser feitas nos nomes das vari\u00e1veis e nos valores delas, respectivamente. 
+#' @param x chr, factor or data.frame.
+#' @param keep vector of characters to preserve
+#' @param add_repl named vector of additional replacements desired. Overrules \code{keep} and default replacements
+#' @param ... additional parameters to factor and data.frame S3 methods. See details.
+#'  
+#' @details
+#' For data.frame's, \code{byref = TRUE} allows to replace characters by reference. Additionally, booleans \code{cols} and 
+#' \code{vars} indicate if replacements should take place in columns and variables, respectively. By default, \code{cols = TRUE} 
+#' and \code{vars = FALSE}.
 #' 
 #' @export
-subs_utf8_punct <- function(x, manter = NULL, ...) UseMethod('subs_utf8_punct', x)
+subs_utf8_punct <- function(x, keep = NULL, add_repl = NULL, ...) UseMethod('subs_utf8_punct', x)
 
 #' @method subs_utf8_punct character
 #' @export
-subs_utf8_punct.character <- function(x, manter = NULL) {
+subs_utf8_punct.character <- function(x, keep = NULL, add_repl = NULL) {
+  
+  additional <- names(add_repl)
+  
+  if (!is.null(add_repl) & sum(additional != '') != length(add_repl))
+    stop("\nadd_repl has to be a named vector in the form add_repl = c('1' = 'one', '2' = 'two').")
+  
+  if (!is.atomic(keep) & !is.list(keep))
+    stop('\nkeep has to be either NULL, a vector or a list.')
   
   dict <- list(
-    etc = c('\u0060','\u005e','\u007e','\u00d7','\u00f7',
-            '\u00a1','\u00a2','\u00a3','\u00a4','\u00a5','\u00a6','\u00a7','\u00a8','\u00a9',
-            '\u00aa','\u00ab','\u00ac','\u00ad','\u00ae','\u00af',
-            '\u00b1','\u00b2','\u00b3','\u00b4','\u00b5','\u00b6','\u00b7','\u00b8','\u00b9',
-            '\u00ba','\u00bb','\u00bc','\u00bd','\u00be','\u00bf'),
+    rm = c('\u0060','\u005e','\u007e','\u00d7','\u00f7',
+           '\u00a1','\u00a2','\u00a3','\u00a4','\u00a5','\u00a6','\u00a7','\u00a8','\u00a9',
+           '\u00aa','\u00ab','\u00ac','\u00ad','\u00ae','\u00af',
+           '\u00b1','\u00b2','\u00b3','\u00b4','\u00b5','\u00b6','\u00b7','\u00b8','\u00b9',
+           '\u00ba','\u00bb','\u00bc','\u00bd','\u00be','\u00bf'),
+    undln = c('/','\\.','-','\\s','\\(','\\)'),
     a = c('\u00e0','\u00e1','\u00e2','\u00e3','\u00e4','\u00e5'),
     A = c('\u00c0','\u00c1','\u00c2','\u00c3','\u00c4','\u00c5'),
-    cc = '\u00e7',
-    CC = '\u00c7',
+    c = '\u00e7',
+    C = '\u00c7',
     e = c('\u00e8','\u00e9','\u00ea','\u00eb'),
     E = c('\u00c8','\u00c9','\u00ca','\u00cb'),
     i = c('\u00ec','\u00ed','\u00ee','\u00ef'),
@@ -96,23 +110,30 @@ subs_utf8_punct.character <- function(x, manter = NULL) {
   )
   
   dict %<>% 
-    map(setdiff, manter) %>% 
+    map(setdiff, keep) %>% 
     {.[map_lgl(., ~ length(.x) > 0)]} %>% 
     map(paste, collapse = '|')
   
-  repl <- dict %>% names() %>% str_replace('etc','')
+  subs <- 
+    dict %>% 
+    names() %>% 
+    str_replace_all(c('rm' = '', 'undln' = '_')) %>% 
+    set_names(dict)
+
+  fixing <- c('_{2,}' = '_', '^_|_$' = '')  
   
-  x %>% str_replace_all(repl %>% set_names(dict))
+  x %>% 
+    str_replace_all(c(add_repl, subs, fixing))
   
 }
 
 #' @method subs_utf8_punct factor
 #' @export
-subs_utf8_punct.factor <- function(x, manter = NULL, byref = FALSE) {
+subs_utf8_punct.factor <- function(x, keep = NULL, add_repl = NULL, byref = FALSE) {
   
   x <- if (byref) x else copy(x)
   
-  setattr(x, 'levels', attr(x, 'levels') %>% subs_utf8_char.character(manter))
+  setattr(x, 'levels', attr(x, 'levels') %>% subs_utf8_punct.character(keep, add_repl))
   
   if (byref) invisible(x) else x
   
@@ -120,7 +141,16 @@ subs_utf8_punct.factor <- function(x, manter = NULL, byref = FALSE) {
 
 #' @method subs_utf8_punct data.frame
 #' @export
-subs_utf8_punct.data.frame <- function(x, cols = T, vars = T, manter = NULL, byref = FALSE) {
+subs_utf8_punct.data.frame <- function(x, cols = TRUE, vars = FALSE, keep = NULL, 
+                                       add_repl = NULL, byref = FALSE) {
+  
+  additional <- names(add_repl)
+  
+  if (!is.null(add_repl) & sum(additional != '') != length(add_repl))
+    stop("\nadd_repl has to be a named vector in the form add_repl = c('1' = 'one', '2' = 'two').")
+  
+  if (!is.atomic(keep) & !is.list(keep))
+    stop('\nkeep has to be either NULL, a vector or a list.')
   
   if (!is.data.table(x))
     x <- as.data.table(x)
@@ -128,15 +158,16 @@ subs_utf8_punct.data.frame <- function(x, cols = T, vars = T, manter = NULL, byr
   if (byref) dt <- x else dt <- copy(x)
   
   dict <- list(
-    etc = c('\u0060','\u005e','\u007e','\u00d7','\u00f7',
-            '\u00a1','\u00a2','\u00a3','\u00a4','\u00a5','\u00a6','\u00a7','\u00a8','\u00a9',
-            '\u00aa','\u00ab','\u00ac','\u00ad','\u00ae','\u00af',
-            '\u00b1','\u00b2','\u00b3','\u00b4','\u00b5','\u00b6','\u00b7','\u00b8','\u00b9',
-            '\u00ba','\u00bb','\u00bc','\u00bd','\u00be','\u00bf'),
+    rm = c('\u0060','\u005e','\u007e','\u00d7','\u00f7',
+           '\u00a1','\u00a2','\u00a3','\u00a4','\u00a5','\u00a6','\u00a7','\u00a8','\u00a9',
+           '\u00aa','\u00ab','\u00ac','\u00ad','\u00ae','\u00af',
+           '\u00b1','\u00b2','\u00b3','\u00b4','\u00b5','\u00b6','\u00b7','\u00b8','\u00b9',
+           '\u00ba','\u00bb','\u00bc','\u00bd','\u00be','\u00bf'),
+    undln = c('/','\\.','-','\\s','\\(','\\)'),
     a = c('\u00e0','\u00e1','\u00e2','\u00e3','\u00e4','\u00e5'),
     A = c('\u00c0','\u00c1','\u00c2','\u00c3','\u00c4','\u00c5'),
-    cc = '\u00e7',
-    CC = '\u00c7',
+    c = '\u00e7',
+    C = '\u00c7',
     e = c('\u00e8','\u00e9','\u00ea','\u00eb'),
     E = c('\u00c8','\u00c9','\u00ca','\u00cb'),
     i = c('\u00ec','\u00ed','\u00ee','\u00ef'),
@@ -148,38 +179,35 @@ subs_utf8_punct.data.frame <- function(x, cols = T, vars = T, manter = NULL, byr
   )
   
   dict %<>% 
-    map(setdiff, manter) %>% 
+    map(setdiff, keep) %>% 
     {.[map_lgl(., ~ length(.x) > 0)]} %>% 
     map(paste, collapse = '|')
   
-  repl <- dict %>% names() %>% str_replace('etc','')
+  subs <- 
+    dict %>% 
+    names() %>% 
+    str_replace_all(c('rm' = '', 'undln' = '_')) %>% 
+    set_names(dict)
   
-  subs <- repl %>% set_names(dict)
+  fixing <- c('_{2,}' = '_', '^_|_$' = '')
   
   
-  
-  # Nomes das colunas
+  # Columns names
   if (cols) 
-    setnames(dt, str_replace_all(names(dt), subs))
+    setnames(dt, names(dt) %>% str_replace_all(c(add_repl, subs, fixing)))
   
-  # Texto nas variaveis
+  # Variables 
   if (vars) {
     
-    string_vars <- dt[, map(.SD, class) %>% 
-                        unlist() %>% 
-                        {which(. == 'character')} %>% 
-                        names()]
+    string_vars <- dt[, map_lgl(.SD, is.character) %>% which() %>% names()]
     
-    factor_vars <- dt[, map(.SD, class) %>% 
-                        unlist() %>% 
-                        {which(. == 'factor')} %>% 
-                        names()] 
+    factor_vars <- dt[, map_lgl(.SD, is.factor) %>% which() %>% names()] 
     
     if (length(string_vars) > 0) 
-      dt[, (string_vars) := map(.SD, str_replace_all, subs), .SDcols = string_vars][]
+      dt[, (string_vars) := map(.SD, str_replace_all, c(add_repl, subs, fixing)), .SDcols = string_vars][]
     
     if(length(factor_vars) > 0)
-      walk(factor_vars, ~ dt[[.x]] %>% subs_utf8_char.factor(manter = manter, byref = T))
+      walk(factor_vars, ~ dt[[.x]] %>% subs_utf8_punct.factor(keep = keep, add_repl = add_repl, byref = T))
     
   }
   

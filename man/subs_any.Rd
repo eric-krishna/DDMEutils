@@ -2,21 +2,21 @@
 % Please edit documentation in R/subs.R
 \name{subs_any}
 \alias{subs_any}
-\title{Substituiccao rapida de valores}
+\title{Fast value replacement}
 \usage{
 subs_any(x, byref = FALSE, ...)
 }
 \arguments{
-\item{x}{Um data.frame}
+\item{x}{A data.frame}
 
-\item{byref}{\code{TRUE/FALSE} indicando se a imputacao de dados deve ser feita por referencia ou retornando uma nova tabela.}
+\item{byref}{\code{TRUE/FALSE} indicating if data imputation should be made by reference.}
 
-\item{\code{...}}{Substituicoes a serem feitas. Veja a seccao de detalhes.}
+\item{\code{...}}{Syntax for replacements. See details.}
 }
 \description{
-Substitui informacoes por valores de interesse. Eh possivel especificar nomes de colunas e/ou expressoes regulares
-com seus respectivos novos valores numa so chamada.
+Replaces specified values for any other in data.frame variables. Changes are made given column names 
+or regular expressions along with its replacements in a single call.
 }
 \details{
-As substituicoes devem ser da forma: \code{subs_any(x, byref, nome_1 = list("?",NA), nome_2 = list("#", 9999))}.
+Replacements must be as follows: \code{subs_any(x, byref, var_1 = list("?",NA), var_2 = list("#", 9999))}.
 }

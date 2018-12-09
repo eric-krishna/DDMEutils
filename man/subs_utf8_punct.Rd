@@ -2,22 +2,24 @@
 % Please edit documentation in R/subs.R
 \name{subs_utf8_punct}
 \alias{subs_utf8_punct}
-\title{Substitui caracteres com codifica\u00e7\u00e3o UTF-8}
+\title{Manage punctuated headers and variables}
 \usage{
-subs_utf8_punct(x, manter = NULL, ...)
+subs_utf8_punct(x, keep = NULL, add_repl = NULL, ...)
 }
 \arguments{
-\item{x}{chr, factor ou data.frame.}
+\item{x}{chr, factor or data.frame.}
 
-\item{manter}{vetor com caracteres que devem ser mantidos.}
+\item{keep}{vector of characters to preserve}
 
-\item{...}{par\u00e2metros adicionais para classes factor e data.frame, veja Detalhes.}
+\item{add_repl}{named vector of additional replacements desired. Overrules \code{keep} and default replacements}
+
+\item{...}{additional parameters to factor and data.frame S3 methods. See details.}
 }
 \description{
-Substitui caracteres com codifica\u00e7\u00e3o UTF-8
+Replace or drop UTF-8 characters and punctuation in headers or/and in char/factor variables.
 }
 \details{
-Quando trabalhando com factor ou data.frame, \u00e9 poss\u00edvel fazer a substitui\u00e7\u00e3o por
-refer\u00eancia com \code{byref = TRUE}. Para data.frame, os booleanos \code{cols} e \code{vars} indicam se a
-substitui\u00e7\u00e3o deve ser feitas nos nomes das vari\u00e1veis e nos valores delas, respectivamente.
+For data.frame's, \code{byref = TRUE} allows to replace characters by reference. Additionally, booleans \code{cols} and 
+\code{vars} indicate if replacements should take place in columns and variables, respectively. By default, \code{cols = TRUE} 
+and \code{vars = FALSE}.
 }
