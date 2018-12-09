@@ -2,18 +2,18 @@
 % Please edit documentation in R/na.R
 \name{na_prop}
 \alias{na_prop}
-\title{NA por colunas}
+\title{Column-wise NA summary}
 \usage{
-na_prop(dt, corte = 0)
+na_prop(dt, min_prop = 0)
 }
 \arguments{
-\item{corte}{Numerico entre 0 e 1 para limitar \code{print} da tabela com descricao.}
+\item{min_prop}{Numeric between 0 and 1 to limit table output}
 
-\item{x}{Uma tabela}
+\item{x}{A data.frame}
 }
 \value{
-Tabela com descrição de NAs por coluna.
+Table with column-wise NA summary
 }
 \description{
-Descreve proporcao de NA por variáveis de um data.frame
+NA summary of data.frame variables.
 }

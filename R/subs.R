@@ -19,7 +19,7 @@
 subs_any <- function(x, byref = FALSE, ...) {
   
   if (!is.data.frame(x)) 
-    stop("\nApplicable for data.frame\n")
+    stop("\nApplicable for data.frame.")
   
   changes <- list(...)
   
@@ -46,7 +46,7 @@ subs_any <- function(x, byref = FALSE, ...) {
     )
     
     if (length(reg_cols) == 0) 
-      warning(glue::glue("\nNo matching columns for regex ({reg}).\n"))
+      warning(glue::glue("\nNo matching columns for regex ({reg})."))
     
     for (j in reg_cols ) 
       set(dt, which({dt[[j]] == changes[[reg]][[1L]]}), j, value = changes[[reg]][[2L]])

@@ -2,22 +2,22 @@
 % Please edit documentation in R/na.R
 \name{subs_na}
 \alias{subs_na}
-\title{Substituiccao rapida de NA}
+\title{Fast NA replacement}
 \usage{
 subs_na(x, byref = FALSE, ...)
 }
 \arguments{
-\item{x}{Um data.frame}
+\item{x}{A data.frame}
 
-\item{byref}{\code{TRUE/FALSE} indicando se a imputacao de dados deve ser feita por referencia ou retornando uma nova tabela.}
+\item{byref}{\code{TRUE/FALSE} indicating if data imputation should be made by reference.}
 
-\item{\code{...}}{Substituicoes a serem feitas. Veja a seccao de detalhes.}
+\item{\code{...}}{Syntax for replacements. See details.}
 }
 \description{
-Substitui NA por valores de interesse. Eh possivel especificar nomes de colunas e/ou expressoes regulares
-com seus respectivos novos valores numa so chamada.
+Replaces NA for other values in data.frame variables. Changes are made given column names or regular
+expressions along with its replacements in a single call.
 }
 \details{
-As substituicoes devem ser da forma: \code{subs_na(x, byref, nome_1 = "?", nome_2 = 9999, "[0-9]{2}$" = 0)} ou
-encapsuladas por \code{list()}, como: \code{subs_na(x, byref, list(nome_1 = "?", nome_2 = 9999, "[0-9]{2}$" = 0))}.
+Replacements must be either \code{subs_na(x, byref, var_1 = "?", var_2 = 9999, "[0-9]{2}$" = 0)} or
+wrapped by \code{list()}: \code{subs_na(x, byref, list(var_1 = "?", var_2 = 9999, "[0-9]{2}$" = 0))}.
 }
