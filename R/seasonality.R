@@ -40,18 +40,23 @@ insp_seasonality.ts <- function(x, trend = FALSE) {
 insp_seasonality.data.frame <- function(x, trend = FALSE, margin = 1L, .parallel = FALSE, 
                                         periodicity = c('month','week','day','year','three_months',
                                                         'four_months','six_months','any'),
-                                        idcol = if(margin == 1L) 1L else NULL, 
-                                        dtcol = if(margin == 2L) 1L else NULL, ...) {
+                                        idcol = NULL, 
+                                        dtcol = NULL, ...) {
   
   if (! margin %in% 1L:2L) 
     stop('\nMargin should be 1 (rows) or 2 (columns)')
   
-  if (!is.null(idcol) && !idcol %in% c(0L,seq_along(x))) 
+  if (is.null(dtcol))
+    dtcol <- 0
+  
+  if (is.null(idcol)) 
+    idcol <- 0
+  
+  if (! idcol %in% c(0L,seq_along(x))) 
     stop('\n`idcol` should indicate an existing column')
   
-  if( !is.null(dtcol) && !dtcol %in% c(0L,seq_along(x))) 
+  if (! dtcol %in% c(0L,seq_along(x))) 
     stop('\n`dtcol` should indicate an existing column')
-  
   
   if (!is.data.table(x)) 
     x <- as.data.table(x)
@@ -72,8 +77,9 @@ insp_seasonality.data.frame <- function(x, trend = FALSE, margin = 1L, .parallel
   switch(margin,
          '1' = {
            
-           if (is.null(idcol) | idcol == 0) {
+           if (idcol == 0) {
              ids <- seq_len(nrow(x))
+             x %<>% as.matrix() 
            } else {
              ids <- x[[idcol]]
              x %<>% .[, -..idcol] %>% as.matrix() 
@@ -98,8 +104,8 @@ insp_seasonality.data.frame <- function(x, trend = FALSE, margin = 1L, .parallel
          
          '2' = {
            
-           if (is.null(dtcol) | dtcol == 0) {
-             ids <- seq_len(nrow(x)) 
+           if (dtcol == 0) {
+             ids <- copy(names(x))
            } else {
              x %<>% .[, -..dtcol]
              ids <- copy(names(x))

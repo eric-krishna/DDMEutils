@@ -86,9 +86,10 @@ insp_outlier.ts <- function(x, window_size = 3, anom_method = c('gesd','iqr')) {
 }
 
 #' @method insp_outlier data.frame
+#' @importFrom lubridate %m-% period
 #' @export
-insp_outlier.data.frame <- function(x, margin = 1L, window_size = 3, .parallel = FALSE, out_format = c('wide','long'), anom_method = c('gesd','iqr'),
-                                    idcol = if(margin == 1L) 1L else NULL,  dtcol = if(margin == 2L) 1L else NULL) {
+insp_outlier.data.frame <- function(x, margin = 1L, window_size = 3, .parallel = FALSE, idcol = NULL,  dtcol = NULL,
+                                    out_format = c('wide','long'), anom_method = c('gesd','iqr')) {
   
   out_format <- match.arg(out_format)
   
@@ -97,10 +98,16 @@ insp_outlier.data.frame <- function(x, margin = 1L, window_size = 3, .parallel =
   if (! margin %in% 1L:2L) 
     stop('\nMargin should be 1 (rows) or 2 (columns)')
   
-  if (!is.null(idcol) && !idcol %in% c(0L,seq_along(x))) 
+  if (is.null(idcol))
+    idcol <- 0
+  
+  if (is.null(dtcol))
+    dtcol <- 0
+  
+  if (! idcol %in% c(0L,seq_along(x))) 
     stop('\n`idcol` should indicate an existing column')
   
-  if( !is.null(dtcol) && !dtcol %in% c(0L,seq_along(x))) 
+  if (! dtcol %in% c(0L,seq_along(x))) 
     stop('\n`dtcol` should indicate an existing column')
   
   if (!is.data.table(x)) 
@@ -118,11 +125,11 @@ insp_outlier.data.frame <- function(x, margin = 1L, window_size = 3, .parallel =
   switch(margin,
          '1' = {
 
-           if (is.null(idcol) | idcol == 0) {
+           if (idcol == 0) {
              ids <- seq_len(nrow(x))
            } else {
              ids <- x[[idcol]]
-             x[, (idcol) := NULL] 
+             x %<>% .[, -..idcol] 
            }
            
            dates <- copy(names(x))
@@ -155,11 +162,14 @@ insp_outlier.data.frame <- function(x, margin = 1L, window_size = 3, .parallel =
          
          '2' = {
            
-           if (is.null(dtcol) | dtcol == 0) {
-             dates <- data.table(seq_len(nrow(x)))
+           if (dtcol == 0) {
+             dates <- data.table(seq.Date(
+               from = {Sys.Date() %m-% period(nrow(x) - 1, units = 'days')},
+               to = Sys.Date(),
+               length.out = nrow(x)))
            } else {
              dates <- x[, ..dtcol]
-             x[, (dtcol) := NULL]
+             x %<>% .[, -..dtcol]
            }
            
            dt_names <- names(x)

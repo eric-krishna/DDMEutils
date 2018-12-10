@@ -21,6 +21,7 @@ Imports:
     dplyr,
     forecast,
     furrr,
+    lubridate,
     stringr,
     tibble,
     zoo
