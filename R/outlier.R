@@ -27,7 +27,7 @@ insp_outlier.ts <- function(x, window_size = 3, anom_method = c('gesd','iqr')) {
   
   dates_try <- zoo::as.Date.ts(x)
   
-  if ({dates_try[1] %>% year() %>% nchar()} == 2) 
+  if ({dates_try[1] %>% year() %>% nchar()} < 4) 
     dates_try <- seq.Date(
       from = {Sys.Date() %m-% period(n - 1, units = 'days')},
       to = Sys.Date(),
