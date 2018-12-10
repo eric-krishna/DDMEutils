@@ -4,7 +4,7 @@
 #' @param trend \code{TRUE/FALSE} indicating if input time series has trend.
 #' @param margin For data.frames, \code{margin = 1} if multiple time series are framed row-wise; while \code{margin = 2} if column-wise.
 #' @param periodicity \code{'month','week','day','year','three_months','four_months','six_months','any'}.
-#' @param \code{...} Outros argumentos para quando \code{x} for um data.frame (\code{paralelo, idcol, dtcol}). Veja a seccao de detalhes.
+#' @param \code{...} Additional arguments for the data.frame case. See details.
 #' 
 #' 
 #'

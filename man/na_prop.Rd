@@ -4,12 +4,12 @@
 \alias{na_prop}
 \title{Column-wise NA summary}
 \usage{
-na_prop(dt, min_prop = 0)
+na_prop(x, min_prop = 0)
 }
 \arguments{
-\item{min_prop}{Numeric between 0 and 1 to limit table output}
-
 \item{x}{A data.frame}
+
+\item{min_prop}{Numeric between 0 and 1 to limit table output}
 }
 \value{
 Table with column-wise NA summary

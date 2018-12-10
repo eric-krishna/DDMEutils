@@ -11,16 +11,16 @@
 #' @return Table with column-wise NA summary
 #' 
 
-na_prop <- function(dt, min_prop = 0) {
+na_prop <- function(x, min_prop = 0) {
 
   if (! min_prop %between% c(0, 1)) stop("\n'min_prop' must be a proportion.\n")
 
-  n <- nrow(dt)
+  n <- nrow(x)
   
-  if (!is.data.table(dt)) 
-    dt <- as.data.table(dt)
+  if (!is.data.table(x)) 
+    x <- as.data.table(x)
 
-  dt[, map(.SD, ~ sum(is.na(.x)))] %>% 
+  x[, map(.SD, ~ sum(is.na(.x)))] %>% 
     t() %>% 
     as.data.table(keep.rownames = "VARIABLE") %>% 
     .[, .(VARIABLE,

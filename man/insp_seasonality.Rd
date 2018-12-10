@@ -15,7 +15,7 @@ insp_seasonality(x, ...)
 
 \item{periodicity}{\code{'month','week','day','year','three_months','four_months','six_months','any'}.}
 
-\item{\code{...}}{Outros argumentos para quando \code{x} for um data.frame (\code{paralelo, idcol, dtcol}). Veja a seccao de detalhes.}
+\item{\code{...}}{Additional arguments for the data.frame case. See details.}
 }
 \description{
 Time series seasonality inspection
