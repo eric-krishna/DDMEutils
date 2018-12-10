@@ -77,6 +77,7 @@ subs_any <- function(x, byref = FALSE, ...) {
 subs_utf8_punct <- function(x, keep = NULL, add_repl = NULL, ...) UseMethod('subs_utf8_punct', x)
 
 #' @method subs_utf8_punct character
+#' @importFrom stringr str_replace_all
 #' @export
 subs_utf8_punct.character <- function(x, keep = NULL, add_repl = NULL) {
   
@@ -140,6 +141,7 @@ subs_utf8_punct.factor <- function(x, keep = NULL, add_repl = NULL, byref = FALS
 }
 
 #' @method subs_utf8_punct data.frame
+#' @importFrom stringr str_replace_all
 #' @export
 subs_utf8_punct.data.frame <- function(x, cols = TRUE, vars = FALSE, keep = NULL, 
                                        add_repl = NULL, byref = FALSE) {
