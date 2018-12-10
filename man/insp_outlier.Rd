@@ -2,25 +2,25 @@
 % Please edit documentation in R/outlier.R
 \name{insp_outlier}
 \alias{insp_outlier}
-\title{Inspeccao de outliers para series temporais}
+\title{Time series outlier inspection}
 \usage{
 insp_outlier(x, ...)
 }
 \arguments{
-\item{x}{Um objeto ts ou data.frame}
+\item{x}{ts or data.frame}
 
-\item{janela}{Inteiro indicando tamanho da janela movel para calculo dos inputs de outliers.}
+\item{window_size}{integer window size. Determines how many observations near an outlier are used to calculate the input value.}
 
-\item{\code{anom_method}}{chr indicando "gesd" ou "iqr", argumento da funcao anomalize::anomalize().}
+\item{anom_method}{"gesd" or "iqr", argument passed to anomalize::anomalize().}
 
-\item{\code{...}}{Parametros adicionais para quando \code{x} eh um data.frame. Veja detalhes.}
+\item{\code{...}}{Additional arguments for the data.frame case. See details.}
 }
 \description{
-Inspeccao de outliers para series temporais
+Time series outlier inspection
 }
 \details{
-Quando \code{sentido = 1}, \code{idcol} especifica o indice da coluna que possui os identificadores das series. 
-Quando \code{sentido = 2}, \code{dtcol} especifica o indice da coluna de datas.
-\code{paralelo} TRUE/FALSE indicando se o processo deve ser feito em paralelo. Quando \code{TRUE}, eh feito por meio dos pacotes \code{future} e \code{furrr}.
-\code{out_format} chr "wide" ou "long", indicando formato da tabela de saida. Se \code{sentido = 2} e a dimensao das series for alta, indica-se \code{out_format = "long"}.
+When \code{margin = 1}, set \code{idcol} to an integer pointing out the index column that identifies the time series.
+When \code{margin = 2}, set \code{dtcol} to an integer pointing out the date column. 
+.parallel TRUE/FALSE if tasks should be parallelized. If \code{TRUE}, uses \code{future} and \code{furrr} packages.
+out_format "wide" or "long", indicating output format. If \code{margin = 2} and there are many time series, \code{out_format = "long"} is easier to handle than wide format.
 }
