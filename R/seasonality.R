@@ -9,9 +9,13 @@
 #' 
 #'
 #' @details 
-#' When \code{margin = 1}, set \code{idcol} to an integer pointing out the index column that identifies the time series.
-#' When \code{margin = 2}, set \code{dtcol} to an integer pointing out the date column. 
-#' .parallel TRUE/FALSE if tasks should be parallelized. If \code{TRUE}, uses \code{future} and \code{furrr} packages.
+#' 
+#' \itemize{
+#'  \item When \code{margin = 1}, set \code{idcol} to an integer pointing out the index column that identifies the time series;
+#'  \item When \code{margin = 2}, set \code{dtcol} to an integer pointing out the date column;
+#'  \item .parallel TRUE/FALSE if tasks should be parallelized. If \code{TRUE}, uses \code{future} and \code{furrr} packages.
+#' }
+#' 
 #' 
 #' @export
 insp_seasonality <- function(x, ...) UseMethod("insp_seasonality", x)

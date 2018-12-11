@@ -11,8 +11,11 @@
 #' 
 #' @details 
 #' 
-#' Replacements must be either \code{subs_na(x, byref, var_1 = "?", var_2 = 9999, "[0-9]{2}$" = 0)} or
-#' wrapped by \code{list()}: \code{subs_na(x, byref, list(var_1 = "?", var_2 = 9999, "[0-9]{2}$" = 0))}.
+#' The syntax for replacements is either
+#' \itemize{
+#'  \item \code{subs_na(x, byref, var_1 = "?", var_2 = 9999, "[0-9]{2}$" = 0)} or
+#'  \item \code{subs_na(x, byref, list(var_1 = "?", var_2 = 9999, "[0-9]{2}$" = 0))}
+#' }
 #' 
 #' 
 #' @export

@@ -6,11 +6,15 @@
 #' @param \code{...} Additional arguments for the data.frame case. See details.
 #' 
 #' @details 
-#' When \code{margin = 1}, set \code{idcol} to an integer pointing out the index column that identifies the time series.
-#' When \code{margin = 2}, set \code{dtcol} to an integer pointing out the date column. 
-#' .parallel TRUE/FALSE if tasks should be parallelized. If \code{TRUE}, uses \code{future} and \code{furrr} packages.
-#' out_format "wide" or "long", indicating output format. If \code{margin = 2} and there are many time series, \code{out_format = "long"} is easier to handle than wide format.
-
+#' 
+#' \itemize{
+#'  \item When \code{margin = 1}, set \code{idcol} to an integer pointing out the index column that identifies the time series;
+#'  \item When \code{margin = 2}, set \code{dtcol} to an integer pointing out the date column;
+#'  \item .parallel TRUE/FALSE if tasks should be parallelized. If \code{TRUE}, uses \code{future} and \code{furrr} packages.
+#'  \item out_format "wide" or "long", indicating output format. If \code{margin = 2} and there are many time series, \code{out_format = "long"} is easier to handle than wide format.
+#' }
+#'  
+#' 
 #' 
 #' @export
 insp_outlier <- function(x, ...) UseMethod('insp_outlier', x)

@@ -19,7 +19,8 @@ clean(x, keep = NULL, add_repl = NULL, ...)
 Replace or drop UTF-8 characters and punctuation in headers or/and in char/factor variables.
 }
 \details{
-For data.frame's, \code{byref = TRUE} allows to replace characters by reference. Additionally, booleans \code{cols} and 
-\code{vars} indicate if replacements should take place in columns and variables, respectively. By default, \code{cols = TRUE} 
+For data.frame's, \code{byref = TRUE} allows to replace characters by reference. 
+
+Additionally, booleans \code{cols} and \code{vars} indicate if replacements should take place in columns and variables, respectively. By default, \code{cols = TRUE} 
 and \code{vars = FALSE}.
 }

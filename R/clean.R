@@ -9,8 +9,9 @@
 #' @param ... additional parameters to factor and data.frame S3 methods. See details.
 #'  
 #' @details
-#' For data.frame's, \code{byref = TRUE} allows to replace characters by reference. Additionally, booleans \code{cols} and 
-#' \code{vars} indicate if replacements should take place in columns and variables, respectively. By default, \code{cols = TRUE} 
+#' For data.frame's, \code{byref = TRUE} allows to replace characters by reference. 
+#' 
+#' Additionally, booleans \code{cols} and \code{vars} indicate if replacements should take place in columns and variables, respectively. By default, \code{cols = TRUE} 
 #' and \code{vars = FALSE}.
 #' 
 #' @export
