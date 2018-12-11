@@ -9,8 +9,9 @@
 #' @param ... additional parameters to factor and data.frame S3 methods. See details.
 #'  
 #' @details
-#' For data.frame's, \code{byref = TRUE} allows to replace characters by reference. Additionally, booleans \code{cols} and 
-#' \code{vars} indicate if replacements should take place in columns and variables, respectively. By default, \code{cols = TRUE} 
+#' For data.frame's, \code{byref = TRUE} allows to replace characters by reference. 
+#' 
+#' Additionally, booleans \code{cols} and \code{vars} indicate if replacements should take place in columns and variables, respectively. By default, \code{cols = TRUE} 
 #' and \code{vars = FALSE}.
 #' 
 #' @export
@@ -49,7 +50,7 @@ clean.character <- function(x, keep = NULL, add_repl = NULL) {
     u = c('\u00f9','\u00fa','\u00fb','\u00fc'),
     U = c('\u00d9','\u00da','\u00db','\u00dc')
   )
-  subs_utf8_punct
+  
   dict %<>% 
     map(setdiff, keep) %>% 
     {.[map_lgl(., ~ length(.x) > 0)]} %>% 
