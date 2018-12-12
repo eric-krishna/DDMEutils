@@ -11,7 +11,7 @@
 #' @details
 #' For data.frame's, \code{byref = TRUE} allows to replace characters by reference. 
 #' 
-#' Additionally, booleans \code{cols} and \code{vars} indicate if replacements should take place in columns and variables, respectively. By default, \code{cols = TRUE} 
+#' Additionally, booleans \code{col_names} and \code{vars} indicate if replacements should take place in columns names and variables, respectively. By default, \code{col_names = TRUE} 
 #' and \code{vars = FALSE}.
 #' 
 #' @export
@@ -87,8 +87,7 @@ clean.factor <- function(x, keep = NULL, add_repl = NULL, byref = FALSE) {
 #' @method clean data.frame
 #' @importFrom stringr str_replace_all
 #' @export
-clean.data.frame <- function(x, cols = TRUE, vars = FALSE, keep = NULL, 
-                                       add_repl = NULL, byref = FALSE) {
+clean.data.frame <- function(x, col_names = TRUE, vars = FALSE, keep = NULL, add_repl = NULL, byref = FALSE) {
   
   additional <- names(add_repl)
   
@@ -139,7 +138,7 @@ clean.data.frame <- function(x, cols = TRUE, vars = FALSE, keep = NULL,
   
   
   # Columns names
-  if (cols) 
+  if (col_names) 
     setnames(dt, names(dt) %>% str_replace_all(c(add_repl, subs, fixing)))
   
   # Variables 

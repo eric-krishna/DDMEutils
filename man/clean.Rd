@@ -14,8 +14,8 @@ clean(x, keep = NULL, add_repl = NULL, ...)
 \method{clean}{factor}(x, keep = NULL, add_repl = NULL,
   byref = FALSE)
 
-\method{clean}{data.frame}(x, cols = TRUE, vars = FALSE, keep = NULL,
-  add_repl = NULL, byref = FALSE)
+\method{clean}{data.frame}(x, col_names = TRUE, vars = FALSE,
+  keep = NULL, add_repl = NULL, byref = FALSE)
 }
 \arguments{
 \item{x}{chr, factor or data.frame.}
@@ -32,6 +32,6 @@ Replace or drop UTF-8 characters and punctuation in headers or/and in char/facto
 \details{
 For data.frame's, \code{byref = TRUE} allows to replace characters by reference. 
 
-Additionally, booleans \code{cols} and \code{vars} indicate if replacements should take place in columns and variables, respectively. By default, \code{cols = TRUE} 
+Additionally, booleans \code{col_names} and \code{vars} indicate if replacements should take place in columns names and variables, respectively. By default, \code{col_names = TRUE} 
 and \code{vars = FALSE}.
 }
