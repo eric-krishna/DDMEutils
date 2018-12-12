@@ -70,6 +70,7 @@ clean.character <- function(x, keep = NULL, add_repl = NULL) {
   
 }
 
+#' @rdname clean
 #' @method clean factor
 #' @export
 clean.factor <- function(x, keep = NULL, add_repl = NULL, byref = FALSE) {
@@ -82,6 +83,7 @@ clean.factor <- function(x, keep = NULL, add_repl = NULL, byref = FALSE) {
   
 }
 
+#' @rdname clean
 #' @method clean data.frame
 #' @importFrom stringr str_replace_all
 #' @export
