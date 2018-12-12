@@ -17,6 +17,7 @@
 #' @export
 clean <- function(x, keep = NULL, add_repl = NULL, ...) UseMethod('clean', x)
 
+#' @rdname clean
 #' @method clean character
 #' @importFrom stringr str_replace_all
 #' @export

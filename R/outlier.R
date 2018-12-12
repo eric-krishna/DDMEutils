@@ -20,6 +20,7 @@
 insp_outlier <- function(x, ...) UseMethod('insp_outlier', x)
 
 
+#' @rdname insp_outlier
 #' @method insp_outlier ts
 #' @importFrom lubridate %m-% period
 #' @export
@@ -89,6 +90,7 @@ insp_outlier.ts <- function(x, window_size = 3, anom_method = c('gesd','iqr')) {
   
 }
 
+#' @rdname insp_outlier
 #' @method insp_outlier data.frame
 #' @importFrom lubridate %m-% period
 #' @export

@@ -2,9 +2,18 @@
 % Please edit documentation in R/seasonality.R
 \name{insp_seasonality}
 \alias{insp_seasonality}
+\alias{insp_seasonality.ts}
+\alias{insp_seasonality.data.frame}
 \title{Time series seasonality inspection}
 \usage{
 insp_seasonality(x, ...)
+
+\method{insp_seasonality}{ts}(x, trend = FALSE)
+
+\method{insp_seasonality}{data.frame}(x, trend = FALSE, margin = 1L,
+  .parallel = FALSE, periodicity = c("month", "week", "day", "year",
+  "three_months", "four_months", "six_months", "any"), idcol = NULL,
+  dtcol = NULL, ...)
 }
 \arguments{
 \item{x}{ts or data.frame}

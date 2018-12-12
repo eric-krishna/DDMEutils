@@ -2,9 +2,18 @@
 % Please edit documentation in R/outlier.R
 \name{insp_outlier}
 \alias{insp_outlier}
+\alias{insp_outlier.ts}
+\alias{insp_outlier.data.frame}
 \title{Time series outlier inspection}
 \usage{
 insp_outlier(x, ...)
+
+\method{insp_outlier}{ts}(x, window_size = 3, anom_method = c("gesd",
+  "iqr"))
+
+\method{insp_outlier}{data.frame}(x, margin = 1L, window_size = 3,
+  .parallel = FALSE, idcol = NULL, dtcol = NULL,
+  out_format = c("wide", "long"), anom_method = c("gesd", "iqr"))
 }
 \arguments{
 \item{x}{ts or data.frame}

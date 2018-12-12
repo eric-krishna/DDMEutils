@@ -2,9 +2,20 @@
 % Please edit documentation in R/clean.R
 \name{clean}
 \alias{clean}
+\alias{clean.character}
+\alias{clean.factor}
+\alias{clean.data.frame}
 \title{Clean punctuated headers and text variables}
 \usage{
 clean(x, keep = NULL, add_repl = NULL, ...)
+
+\method{clean}{character}(x, keep = NULL, add_repl = NULL)
+
+\method{clean}{factor}(x, keep = NULL, add_repl = NULL,
+  byref = FALSE)
+
+\method{clean}{data.frame}(x, cols = TRUE, vars = FALSE, keep = NULL,
+  add_repl = NULL, byref = FALSE)
 }
 \arguments{
 \item{x}{chr, factor or data.frame.}

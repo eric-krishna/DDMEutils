@@ -21,6 +21,7 @@
 insp_seasonality <- function(x, ...) UseMethod("insp_seasonality", x)
 
 
+#' @rdname insp_seasonality
 #' @method insp_seasonality ts
 #' @export
 #' 
@@ -38,6 +39,7 @@ insp_seasonality.ts <- function(x, trend = FALSE) {
 }
 
 
+#' @rdname insp_seasonality
 #' @method insp_seasonality data.frame
 #' @export
 #' 
