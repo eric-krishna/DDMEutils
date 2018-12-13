@@ -138,9 +138,14 @@ data %>%
 
 ## 4 Cleaning text variables and column names with `clean()`
 
+Default replacements are 
+
+```{r}
+
+```
 
 
-## 5 Helpers for dealing with NA: `na_prop()` and `na_input()`
+## 5 Helpers for dealing with NA: `na_prop()`
 
 ### `na_prop()`
 
@@ -153,6 +158,3 @@ data %>% na_prop()
 # Restricted. Useful to retrieve variables that present more than min_prop of NA.   
 data %>% na_prop(min_prop = 0.1)
 ```
-
-
-### `na_input()`
