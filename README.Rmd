@@ -17,7 +17,7 @@ library("knitr")
 
 ## 1 `insp_outlier()`
 
-Created by Gabriel Motta for outlier detection in time series, based on `anomalize` package. S3 methods are defined for `ts` and `data.frame` objects.
+Written by Gabriel Motta for outlier detection in time series, based on `anomalize` package. S3 methods are defined for `ts` and `data.frame` objects.
 
 ### Unidimensional time series
 
@@ -98,6 +98,30 @@ insp_outlier(d2, margin = 2, dtcol = 1, out_format = "long") %>%
 
 ## 2 `insp_seasonality()`
 
+Written by Gabriel Motta for getting seasonality of time series, based on `forecast` package. S3 methods are defined for `ts` and `data.frame` objects.
+
+Options for `data.frame`: (check `args(insp_outlier.data.frame)` for defaults)
+
+* `trend` T/F - if time series have trend;
+* `margin` 
+    + `margin = 1` for series framed row-wise. In this case, specify as well an integer to an index column on `idcol`;
+    + `margin = 2` for series framed col-wise. Specify an integer to an date column on `dtcol`;
+* `periodicity` of the series 
+
+
+### Example for `airquality` dataset:
+
+```{r}
+data <- airquality %>% as.data.table()
+head(data)
+setorder(data, Month, Day)
+
+data[, .(Wind, Temp)] %>% 
+  insp_seasonality(margin = 2, dtcol = 0, periodicity = 'day')
+```
+
+Considering we have daily observations and a total length no longer than a year for 'Wind' and 'Temp' variables, seasonality 365 means that no periods of seasonality were found.
+
 
 ## 3 Value replacements with `subs_any()` and `subs_na()`
 
@@ -138,14 +162,52 @@ data %>%
 
 ## 4 Cleaning text variables and column names with `clean()`
 
-Default replacements are 
+Methods for cleaning headers and text variables within data.frame. For `factor` objects, cleans levels attribute. Default replacements are stored in exported list `.dict`, where names `rm` and `undln` stand for 'remove' and 'underline' actions.
 
 ```{r}
+.dict
 
+to_clean <- c('Header with Nº of meas./hour(in measurement unit)', 
+              '\u00c0rtificial p\u00fcnctuat\u00ead attribute')
+to_clean
+
+# S3 method for char 
+clean(to_clean)
+```
+
+Additional arguments: 
+
+* `keep` - vector of chars to remain unchanged;
+* `add_repl` - named vector of additional replacements desired.
+
+```{r}
+clean(to_clean, keep ='º')
+
+clean(to_clean, add_repl = c('H' = 'HHH'))
+```
+
+For `data.frame`, further logical options are:
+
+* `col_names` - T/F for changes in table header;
+* `vars` - T/F for changes in table variables;
+* `byref` - T/F if replacements are made by reference in the table.
+
+```{r}
+df_to_clean <- data.table(
+  '"quoted name"' = 1,
+  'text' = LETTERS[1:5] %>% stringr::str_replace_all( c('C'='Ç', 'A' = '"An extract from a book"'))
+)
+
+df_to_clean
+
+# default: col_names = T, vars = F
+df_to_clean %>% 
+  clean(add_repl = c('"' = '')) %>% 
+  clean(vars = T, col_names = F, keep = '\\s')
 ```
 
 
-## 5 Helpers for dealing with NA: `na_prop()`
+## 5 Helpers for dealing with NA: `na_prop()` and `na_input()`
 
 ### `na_prop()`
 
@@ -158,3 +220,5 @@ data %>% na_prop()
 # Restricted. Useful to retrieve variables that present more than min_prop of NA.   
 data %>% na_prop(min_prop = 0.1)
 ```
+
+### `na_input()`

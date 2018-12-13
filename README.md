@@ -5,7 +5,7 @@ DDMEutils - Repository of useful functions for daily analysis and R programming
 1 `insp_outlier()`
 ------------------
 
-Created by Gabriel Motta for outlier detection in time series, based on `anomalize` package. S3 methods are defined for `ts` and `data.frame` objects.
+Written by Gabriel Motta for outlier detection in time series, based on `anomalize` package. S3 methods are defined for `ts` and `data.frame` objects.
 
 ### Unidimensional time series
 
@@ -21,13 +21,13 @@ x_modif[49:55]
 ```
 
     ##          DATE SERIES IMPUTED_SERIES OUTLIER_FLAG
-    ## 1: 2018-10-21      8              8            0
-    ## 2: 2018-10-22    -10              8            1
-    ## 3: 2018-10-23      8              8            0
-    ## 4: 2018-10-24      9              9            0
-    ## 5: 2018-10-25     12             12            0
-    ## 6: 2018-10-26     11             11            0
-    ## 7: 2018-10-27      5              5            0
+    ## 1: 2018-10-23      8              8            0
+    ## 2: 2018-10-24    -10             10            1
+    ## 3: 2018-10-25     10             10            0
+    ## 4: 2018-10-26     11             11            0
+    ## 5: 2018-10-27      9              9            0
+    ## 6: 2018-10-28     13             13            0
+    ## 7: 2018-10-29     10             10            0
 
 ``` r
 x_modif %>% 
@@ -56,12 +56,12 @@ Example:
 d1[,1:10]
 ```
 
-    ##    ID       V1       V2       V3       V4       V5       V6       V7
-    ## 1:  1 13.00000 15.00000 9.000000 16.00000 12.00000 14.00000 7.000000
-    ## 2:  2 13.00321 15.85243 9.820114 16.33274 11.79309 16.36154 6.823636
+    ##    ID        V1       V2       V3       V4       V5      V6       V7
+    ## 1:  1 10.000000 4.000000 14.00000 12.00000 5.000000 9.00000 18.00000
+    ## 2:  2  9.957709 6.317304 12.56808 11.78547 4.101321 9.74964 18.89425
     ##          V8       V9
-    ## 1: 5.000000 13.00000
-    ## 2: 5.415589 15.25655
+    ## 1: 11.00000 15.00000
+    ## 2: 11.31764 16.10898
 
 ``` r
 # 'Wide' output format
@@ -71,16 +71,16 @@ insp_outlier(d1, margin = 1, idcol = 1) %>%
 ```
 
     ##     ID PERIOD    SERIES IMPUTED_SERIES OUTLIER_FLAG
-    ##  1:  1    V36 10.000000      10.000000            0
-    ##  2:  1    V41 14.000000      14.000000            0
-    ##  3:  1    V44  7.000000       7.000000            0
-    ##  4:  1    V80 11.000000      11.000000            0
-    ##  5:  1    V98 16.000000      16.000000            0
-    ##  6:  2    V17  5.373607       5.373607            0
-    ##  7:  2    V41 12.154600      12.154600            0
-    ##  8:  2    V57  9.334206       9.334206            0
-    ##  9:  2    V58 12.524598      12.524598            0
-    ## 10:  2    V74  8.554688       8.554688            0
+    ##  1:  1     V3 14.000000      14.000000            0
+    ##  2:  1    V35  6.000000       6.000000            0
+    ##  3:  1    V47 15.000000      15.000000            0
+    ##  4:  1     V5  5.000000       5.000000            0
+    ##  5:  1    V72 10.000000      10.000000            0
+    ##  6:  1    V91  9.000000       9.000000            0
+    ##  7:  1    V96 16.000000      16.000000            0
+    ##  8:  2    V43  5.502871       5.502871            0
+    ##  9:  2    V49  9.204284       9.204284            0
+    ## 10:  2     V9 16.108980      16.108980            0
 
 ``` r
 # 'Long' output format
@@ -90,16 +90,16 @@ insp_outlier(d1, margin = 1, out_format = "long") %>%
 ```
 
     ##     ID PERIOD OUTLIER_FLAG IMPUTED     VALUE
-    ##  1:  1    V57            0       1  9.000000
-    ##  2:  1    V64            0       1  9.000000
-    ##  3:  1    V76            0       0 16.000000
-    ##  4:  2    V13            0       1 17.805308
-    ##  5:  2    V18            0       0  6.813689
-    ##  6:  2    V25            0       0  9.436514
-    ##  7:  2    V72            0       1 18.137185
-    ##  8:  2    V75            0       1 12.419367
-    ##  9:  2    V85            0       1  9.821971
-    ## 10:  2    V99            0       1 11.604808
+    ##  1:  1    V32            0       1  9.000000
+    ##  2:  1    V62            0       0 13.000000
+    ##  3:  1    V64            0       1  9.000000
+    ##  4:  1    V69            0       0 13.000000
+    ##  5:  1    V91            0       1  9.000000
+    ##  6:  1    V95            0       1  6.000000
+    ##  7:  1    V99            0       1 13.000000
+    ##  8:  2    V25            0       1  2.684821
+    ##  9:  2    V40            0       1  4.097644
+    ## 10:  2    V85            0       0  7.252151
 
 #### Time series framed in cols
 
@@ -110,11 +110,11 @@ d2[1:5]
 ```
 
     ##          DATE SERIES1 SERIES2
-    ## 1: 2018-01-01      13 -0.4406
-    ## 2: 2018-01-02      15 -0.5089
-    ## 3: 2018-01-03       9 -0.9169
-    ## 4: 2018-01-04      16 -0.4337
-    ## 5: 2018-01-05      12  1.6234
+    ## 1: 2018-01-01      10  0.8031
+    ## 2: 2018-01-02       4 -0.0238
+    ## 3: 2018-01-03      14 -0.6241
+    ## 4: 2018-01-04      12 -1.2279
+    ## 5: 2018-01-05       5 -0.4120
 
 ``` r
 # 'Wide' output format
@@ -122,19 +122,19 @@ insp_outlier(d2, margin = 2, dtcol = 1) %>% head()
 ```
 
     ##          DATE SERIES1 IMPUTED_SERIES1 OUTLIER_FLAG_SERIES1 SERIES2
-    ## 1: 2018-01-01      13              13                    0 -0.4406
-    ## 2: 2018-01-02      15              15                    0 -0.5089
-    ## 3: 2018-01-03       9               9                    0 -0.9169
-    ## 4: 2018-01-04      16              16                    0 -0.4337
-    ## 5: 2018-01-05      12              12                    0  1.6234
-    ## 6: 2018-01-06      14              14                    0 -0.4083
+    ## 1: 2018-01-01      10              10                    0  0.8031
+    ## 2: 2018-01-02       4               4                    0 -0.0238
+    ## 3: 2018-01-03      14              14                    0 -0.6241
+    ## 4: 2018-01-04      12              12                    0 -1.2279
+    ## 5: 2018-01-05       5               5                    0 -0.4120
+    ## 6: 2018-01-06       9               9                    0  1.5456
     ##    IMPUTED_SERIES2 OUTLIER_FLAG_SERIES2
-    ## 1:         -0.4406                    0
-    ## 2:         -0.5089                    0
-    ## 3:         -0.9169                    0
-    ## 4:         -0.4337                    0
-    ## 5:          1.6234                    0
-    ## 6:         -0.4083                    0
+    ## 1:          0.8031                    0
+    ## 2:         -0.0238                    0
+    ## 3:         -0.6241                    0
+    ## 4:         -1.2279                    0
+    ## 5:         -0.4120                    0
+    ## 6:          1.5456                    0
 
 ``` r
 # 'Long' output format
@@ -144,19 +144,57 @@ insp_outlier(d2, margin = 2, dtcol = 1, out_format = "long") %>%
 ```
 
     ##           DATE  SERIES OUTLIER_FLAG IMPUTED   VALUE
-    ##  1: 2018-03-12 SERIES1            0       0  9.0000
-    ##  2: 2018-03-16 SERIES1            0       1 12.0000
-    ##  3: 2018-01-03 SERIES2            0       1 -0.9169
-    ##  4: 2018-01-05 SERIES2            0       0  1.6234
-    ##  5: 2018-02-02 SERIES2            0       1  2.0181
-    ##  6: 2018-02-03 SERIES2            0       0 -0.4724
-    ##  7: 2018-02-07 SERIES2            0       1 -0.3899
-    ##  8: 2018-03-06 SERIES2            0       0  0.1446
-    ##  9: 2018-03-23 SERIES2            0       1 -0.6911
-    ## 10: 2018-04-10 SERIES2            0       0  0.2083
+    ##  1: 2018-01-19 SERIES1            0       0 11.0000
+    ##  2: 2018-01-21 SERIES1            1       0 19.0000
+    ##  3: 2018-02-07 SERIES1            0       0 12.0000
+    ##  4: 2018-02-13 SERIES1            0       0 17.0000
+    ##  5: 2018-03-02 SERIES1            0       1 11.0000
+    ##  6: 2018-03-18 SERIES1            0       0  9.0000
+    ##  7: 2018-04-09 SERIES1            0       0 13.0000
+    ##  8: 2018-03-06 SERIES2            0       0  0.0758
+    ##  9: 2018-03-07 SERIES2            0       0 -1.0241
+    ## 10: 2018-03-09 SERIES2            1       1  0.0758
 
 2 `insp_seasonality()`
 ----------------------
+
+Written by Gabriel Motta for getting seasonality of time series, based on `forecast` package. S3 methods are defined for `ts` and `data.frame` objects.
+
+Options for `data.frame`: (check `args(insp_outlier.data.frame)` for defaults)
+
+-   `trend` T/F - if time series have trend;
+-   `margin`
+    -   `margin = 1` for series framed row-wise. In this case, specify as well an integer to an index column on `idcol`;
+    -   `margin = 2` for series framed col-wise. Specify an integer to an date column on `dtcol`;
+-   `periodicity` of the series
+
+### Example for `airquality` dataset:
+
+``` r
+data <- airquality %>% as.data.table()
+head(data)
+```
+
+    ##    Ozone Solar.R Wind Temp Month Day
+    ## 1:    41     190  7.4   67     5   1
+    ## 2:    36     118  8.0   72     5   2
+    ## 3:    12     149 12.6   74     5   3
+    ## 4:    18     313 11.5   62     5   4
+    ## 5:    NA      NA 14.3   56     5   5
+    ## 6:    28      NA 14.9   66     5   6
+
+``` r
+setorder(data, Month, Day)
+
+data[, .(Wind, Temp)] %>% 
+  insp_seasonality(margin = 2, dtcol = 0, periodicity = 'day')
+```
+
+    ##      ID SEASONALITY
+    ## 1: Wind         365
+    ## 2: Temp         365
+
+Considering we have daily observations and a total length no longer than a year for 'Wind' and 'Temp' variables, seasonality 365 means that no periods of seasonality were found.
 
 3 Value replacements with `subs_any()` and `subs_na()`
 ------------------------------------------------------
@@ -244,6 +282,128 @@ data %>%
 
 4 Cleaning text variables and column names with `clean()`
 ---------------------------------------------------------
+
+Methods for cleaning headers and text variables within data.frame. For `factor` objects, cleans levels attribute. Default replacements are stored in exported list `.dict`, where names `rm` and `undln` stand for 'remove' and 'underline' actions.
+
+``` r
+.dict
+```
+
+    ## $rm
+    ##  [1] "`" "^" "~" "×" "÷" "¡" "¢" "£" "¤" "¥" "¦" "§" "¨" "©" "ª" "«" "¬"
+    ## [18] "­" "®" "¯" "±" "²" "³" "´" "µ" "¶" "·" "¸" "¹" "º" "»" "¼" "½" "¾"
+    ## [35] "¿"
+    ## 
+    ## $undln
+    ## [1] "/"   "\\." "-"   "\\s" "\\(" "\\)"
+    ## 
+    ## $a
+    ## [1] "à" "á" "â" "ã" "ä" "å"
+    ## 
+    ## $A
+    ## [1] "À" "Á" "Â" "Ã" "Ä" "Å"
+    ## 
+    ## $c
+    ## [1] "ç"
+    ## 
+    ## $C
+    ## [1] "Ç"
+    ## 
+    ## $e
+    ## [1] "è" "é" "ê" "ë"
+    ## 
+    ## $E
+    ## [1] "È" "É" "Ê" "Ë"
+    ## 
+    ## $i
+    ## [1] "ì" "í" "î" "ï"
+    ## 
+    ## $I
+    ## [1] "Ì" "Í" "Î" "Ï"
+    ## 
+    ## $o
+    ## [1] "ò" "ó" "ô" "õ" "ö" "ø"
+    ## 
+    ## $O
+    ## [1] "Ò" "Ó" "Ô" "Õ" "Ö" "Ø"
+    ## 
+    ## $u
+    ## [1] "ù" "ú" "û" "ü"
+    ## 
+    ## $U
+    ## [1] "Ù" "Ú" "Û" "Ü"
+
+``` r
+to_clean <- c('Header with Nº of meas./hour(in measurement unit)', 
+              '\u00c0rtificial p\u00fcnctuat\u00ead attribute')
+to_clean
+```
+
+    ## [1] "Header with Nº of meas./hour(in measurement unit)"
+    ## [2] "Àrtificial pünctuatêd attribute"
+
+``` r
+# S3 method for char 
+clean(to_clean)
+```
+
+    ## [1] "Header_with_N_of_meas_hour_in_measurement_unit"
+    ## [2] "Artificial_punctuated_attribute"
+
+Additional arguments:
+
+-   `keep` - vector of chars to remain unchanged;
+-   `add_repl` - named vector of additional replacements desired.
+
+``` r
+clean(to_clean, keep ='º')
+```
+
+    ## [1] "Header_with_Nº_of_meas_hour_in_measurement_unit"
+    ## [2] "Artificial_punctuated_attribute"
+
+``` r
+clean(to_clean, add_repl = c('H' = 'HHH'))
+```
+
+    ## [1] "HHHeader_with_N_of_meas_hour_in_measurement_unit"
+    ## [2] "Artificial_punctuated_attribute"
+
+For `data.frame`, further logical options are:
+
+-   `col_names` - T/F for changes in table header;
+-   `vars` - T/F for changes in table variables;
+-   `byref` - T/F if replacements are made by reference in the table.
+
+``` r
+df_to_clean <- data.table(
+  '"quoted name"' = 1,
+  'text' = LETTERS[1:5] %>% stringr::str_replace_all( c('C'='Ç', 'A' = '"An extract from a book"'))
+)
+
+df_to_clean
+```
+
+    ##    "quoted name"                     text
+    ## 1:             1 "An extract from a book"
+    ## 2:             1                        B
+    ## 3:             1                        Ç
+    ## 4:             1                        D
+    ## 5:             1                        E
+
+``` r
+# default: col_names = T, vars = F
+df_to_clean %>% 
+  clean(add_repl = c('"' = '')) %>% 
+  clean(vars = T, col_names = F, keep = '\\s')
+```
+
+    ##    quoted_name                     text
+    ## 1:           1 "An extract from a book"
+    ## 2:           1                        B
+    ## 3:           1                        C
+    ## 4:           1                        D
+    ## 5:           1                        E
 
 5 Helpers for dealing with NA: `na_prop()` and `na_input()`
 -----------------------------------------------------------
