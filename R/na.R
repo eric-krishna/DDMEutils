@@ -61,7 +61,7 @@ na_input <- function(x, how = 'median', window = Inf, ...) {
   if (! how %in% c('mean','median','locf','nocb','lin_interp','cub_spline')) 
     stop("\nhow must be one of c('mean','median','locf','nocb','lin_interp','cub_spline')")
   # Include alignment option for how = 'mean' or 'median'. 
-  # Something like 'mean:center'. To split 'how', str_split_fixed(how, "[a-z]*(?=:)", n = 2)
+  # Something like 'mean:center'. To split 'how', str_split_fixed(how, ":", n = 2) or str_extract(how, ""[a-z]*(?=:)"")
   
   
   if (how %in% c('mean','median')) {
