@@ -8,9 +8,10 @@ knitr::opts_chunk$set(echo = TRUE,
                       error = FALSE,
                       message = FALSE,
                       fig.path = "README_figs/README-")
-library("DDMEutils")
+library("devtools")
 library("ggplot2")
 library("knitr")
+load_all()
 ```
  
 # DDMEutils - Repository of useful functions for daily analysis and R programming
@@ -222,3 +223,28 @@ data %>% na_prop(min_prop = 0.1)
 ```
 
 ### `na_input()`
+
+Numerical imputation of vectors. Supported types:
+
+* Aggregating functions: adjustable-window mean or median;
+* Linear interpolation;
+* Cubic spline interpolation;
+* LOCF (Last Observation Carried Forward);
+* NOCB (Next Observation Carried Backward).
+
+```{r}
+x <- c(NA, 10, 9, 8, 7, NA, NA, 100, 50)
+
+# mean or median, controling window size
+na_input(x, how = 'mean') # window default = Inf
+na_input(x, how = 'median', window = 3)
+
+# locf, nocb
+na_input(x, how = 'locf')
+na_input(x, how = 'nocb')
+
+# Approximations
+na_input(x, how = 'lin_interp')
+na_input(x, how = 'cub_spline')
+```
+

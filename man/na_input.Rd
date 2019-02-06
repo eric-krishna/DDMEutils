@@ -10,8 +10,8 @@ na_input(x, how = "median", window = Inf, ...)
 \item{x}{Vector to input data.}
 
 \item{how}{Inputation type. One of 'mean', 'median', 
-'locf' (Last Observation Carried Backwards), 
-'nocb' (Next Observation Carried Forward), 
+'locf' (Last Observation Carried Forward), 
+'nocb' (Next Observation Carried Backward), 
 'lin_interp' (linear interpolation) or 
 'cub_spline' (cubic spline)}
 

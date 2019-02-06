@@ -37,14 +37,16 @@ na_prop <- function(x, min_prop = 0) {
 #'
 #' @param x Vector to input data.
 #' @param how Inputation type. One of 'mean', 'median', 
-#' 'locf' (Last Observation Carried Backwards), 
-#' 'nocb' (Next Observation Carried Forward), 
+#' 'locf' (Last Observation Carried Forward), 
+#' 'nocb' (Next Observation Carried Backward), 
 #' 'lin_interp' (linear interpolation) or 
 #' 'cub_spline' (cubic spline)
 #' @param window Window size. Used when \code{how} equals 'mean' or 'median'.
 #' @param ... Further arguments to zoo functions na.locf, na.approx or na.spline.
 #' 
-#' @importFrom zoo na.approx, na.spline, na.locf 
+#' @importFrom zoo na.locf 
+#' @importFrom zoo na.approx
+#' @importFrom zoo na.spline
 #' @importFrom stringr str_split_fixed
 #' @export
 
