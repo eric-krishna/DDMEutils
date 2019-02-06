@@ -12,6 +12,7 @@ library("devtools")
 library("ggplot2")
 library("knitr")
 load_all()
+set.seed(1234)
 ```
  
 # DDMEutils - Repository of useful functions for daily analysis and R programming
@@ -25,6 +26,7 @@ Written by Gabriel Motta for outlier detection in time series, based on `anomali
 Undated object `x`:
 
 ```{r, echo=FALSE}
+set.seed(1234)
 x <- rpois(100, 10); x[c(10,30)] <- c(50,65) ; x[c(50)] <- -10
 qplot(seq_along(x), x, geom = "line", xlab = "Index", ylab = "Values")
 ```
@@ -232,19 +234,31 @@ Numerical imputation of vectors. Supported types:
 * LOCF (Last Observation Carried Forward);
 * NOCB (Next Observation Carried Backward).
 
+Graphical example:
+```{r}
+set.seed(1234)
+x <- rpois(20, 2); x[c(1,10,11,12)] <- NA 
+qplot(seq_along(x), x, geom = "line", xlab = "Index", ylab = "Values")
+
+dt <- data.table(Index = seq_along(x), x)
+for(type in c('mean','median','locf','nocb','lin_interp','cub_spline')) {
+  dt[, stringr::str_to_title(type) := na_input(x, how = type)]
+} 
+dt[, -'x'] %>% 
+  melt(id = 'Index') %>% 
+  ggplot(aes(Index, value, color = variable)) +
+  geom_line(size = 1) +
+  labs(y = 'Values', color = 'Imputation Type') +
+  theme(legend.position = 'bottom')
+```
+
+
+Changing `window` parameter:
+
 ```{r}
 x <- c(NA, 10, 9, 8, 7, NA, NA, 100, 50)
 
-# mean or median, controling window size
+# Controling window size
 na_input(x, how = 'mean') # window default = Inf
 na_input(x, how = 'median', window = 3)
-
-# locf, nocb
-na_input(x, how = 'locf')
-na_input(x, how = 'nocb')
-
-# Approximations
-na_input(x, how = 'lin_interp')
-na_input(x, how = 'cub_spline')
 ```
-
